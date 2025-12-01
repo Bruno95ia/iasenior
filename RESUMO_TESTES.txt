@@ -1,0 +1,44 @@
+════════════════════════════════════════════════════════════════
+  🧪 GUIA RÁPIDO DE TESTES - SISTEMA IASENIOR
+════════════════════════════════════════════════════════════════
+
+📚 DOCUMENTAÇÃO DISPONÍVEL:
+  • TESTES.md - Guia completo de testes
+  • COMO_TESTAR.md - Instruções passo a passo
+  • INICIO_RAPIDO_TESTES.md - Início rápido
+
+⚡ TESTE RÁPIDO (RECOMENDADO):
+
+  1. Instalar dependências:
+     pip install -r requirements.txt
+
+  2. Executar teste automático:
+     python3 test_sistema_rapido.py
+
+  3. Verificar sistema:
+     bash verificar_sistema.sh
+
+📋 CHECKLIST BÁSICO:
+
+  □ Dependências instaladas (pip install -r requirements.txt)
+  □ Configuração funciona (python3 -c "from config import *")
+  □ Diretórios criados (resultados, logs, agents_data)
+  □ Modelo YOLO disponível (yolov8n.pt)
+  □ MediaMTX rodando (docker compose up -d mediamtx)
+  □ Sistema iniciado (python3 start_agents.py)
+
+🔍 VERIFICAÇÕES MANUAIS:
+
+  • Processos: ps aux | grep -E "(stream_inferencia|start_agents)"
+  • Portas: lsof -i :8554 :8501 :8888
+  • Arquivos: ls -lh resultados/ultima_frame.jpg
+  • Logs: tail -20 logs/inferencia.log
+
+📞 COMANDOS ÚTEIS:
+
+  • Ver status dos agentes: python3 verificar_status_agentes.py
+  • Verificar sistema: bash verificar_sistema.sh
+  • Teste rápido: python3 test_sistema_rapido.py
+  • Teste simples: python3 test_agente_simples.py
+
+════════════════════════════════════════════════════════════════

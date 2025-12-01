@@ -1,0 +1,9 @@
+services:
+  painel:
+    build: .
+    container_name: painel_iasenior
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./resultados:/app/resultados
+    restart: always

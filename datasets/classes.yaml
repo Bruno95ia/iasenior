@@ -1,0 +1,26 @@
+# Configuração de Classes para YOLO - IASenior
+# Classes específicas para os objetivos do sistema
+
+# Número de classes
+nc: 5
+
+# Nomes das classes (em português, mapeadas para inglês no modelo)
+names:
+  0: pessoa  # Person (classe base para todas as detecções)
+  1: pessoa_em_pe  # Person standing (para diferenciar postura)
+  2: pessoa_caida  # Person fallen/down (para detecção de quedas)
+  3: pessoa_sentada  # Person sitting
+  4: pessoa_no_banheiro  # Person in bathroom (contexto específico)
+
+# Descrição das classes
+# Classe 0: pessoa - Pessoa genérica (pode ser usada quando não há certeza da postura)
+# Classe 1: pessoa_em_pe - Pessoa em pé, caminhando, etc.
+# Classe 2: pessoa_caida - Pessoa caída no chão (prioritária para detecção de quedas)
+# Classe 3: pessoa_sentada - Pessoa sentada
+# Classe 4: pessoa_no_banheiro - Pessoa detectada na área do banheiro
+
+# Notas:
+# - Classe 2 (pessoa_caida) é a mais importante para detecção de quedas
+# - Classes 1 e 3 ajudam a diferenciar contextos e reduzir falsos positivos
+# - Classe 4 é específica para monitoramento contextual
+

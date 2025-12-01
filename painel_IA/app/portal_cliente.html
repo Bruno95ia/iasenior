@@ -1,0 +1,3074 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#003361" />
+  <meta name="description" content="Plataforma Digital de Relacionamento com o Cliente - Opus Tech. Alinhada com ISO 9001, ISO 27001 e ISO 27701." />
+  <title>Portal do Cliente — Opus Tech</title>
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+  
+  <!-- Chart.js para gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Three.js para visualização 3D -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+  
+  <style>
+    :root {
+      --bg-primary: #003361;
+      --bg-secondary: #00BBDD;
+      --bg-tertiary: #007760;
+      --text-primary: #FFFFFF;
+      --text-secondary: #F8F8FF;
+      --text-muted: rgba(248,248,255,0.75);
+      --text-muted-2: rgba(248,248,255,0.55);
+      --card-bg: rgba(255,255,255,0.05);
+      --card-hover: rgba(255,255,255,0.08);
+      --border-color: rgba(255,255,255,0.1);
+      --shadow: 0 4px 20px rgba(0,0,0,0.3);
+      --shadow-hover: 0 8px 30px rgba(0,187,221,0.2);
+      --radius: 16px;
+      --radius-sm: 12px;
+      --maxwidth: 1400px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, #001f3d 100%);
+      color: var(--text-primary);
+      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    .skip-link:focus {
+      left: 20px;
+      top: 20px;
+      width: auto;
+      height: auto;
+      background: #fff;
+      color: #000;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 10000;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+      align-items: stretch;
+      padding: 24px;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: var(--maxwidth);
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      border-radius: var(--radius);
+      padding: 0;
+      gap: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    nav.sidebar {
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, #0099bb 100%);
+      padding: 28px 24px;
+      border-radius: var(--radius) 0 0 var(--radius);
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 48px);
+      position: sticky;
+      top: 24px;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid rgba(255,255,255,0.15);
+      margin-bottom: 24px;
+    }
+
+    .brand small {
+      display: block;
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 12px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .menu button {
+      background: transparent;
+      border: 0;
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .menu button::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 0;
+      background: var(--text-primary);
+      border-radius: 0 4px 4px 0;
+      transition: var(--transition);
+    }
+
+    .menu button:hover::before,
+    .menu button.active::before {
+      height: 60%;
+    }
+
+    .menu button:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(4px);
+    }
+
+    .menu button.active {
+      background: rgba(255,255,255,0.2);
+      font-weight: 700;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      font-size: 13px;
+      color: rgba(255,255,255,0.9);
+      padding-top: 24px;
+      border-top: 2px solid rgba(255,255,255,0.15);
+    }
+
+    .sidebar-footer .btn {
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    main {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 32px;
+      min-height: 100vh;
+      overflow: auto;
+      backdrop-filter: blur(10px);
+    }
+
+    header.top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    header .left {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    header h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    header .subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      font-weight: 400;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .search {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .search::before {
+      content: '🔍';
+      position: absolute;
+      left: 14px;
+      font-size: 16px;
+      opacity: 0.6;
+    }
+
+    .search input {
+      padding: 12px 14px 12px 42px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border-color);
+      background: rgba(255,255,255,0.05);
+      color: var(--text-primary);
+      min-width: 280px;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    .search input:focus {
+      outline: none;
+      border-color: var(--bg-secondary);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 0 4px rgba(0,187,221,0.1);
+    }
+
+    .notifications-btn {
+      position: relative;
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .notifications-btn:hover {
+      background: var(--card-hover);
+      border-color: var(--bg-secondary);
+    }
+
+    .notifications-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #FF4C4C;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--card-bg);
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border-color);
+    }
+
+    .user-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .user-account {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .user img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--bg-secondary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+      backdrop-filter: blur(10px);
+    }
+
+    .card:hover {
+      background: var(--card-hover);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--bg-secondary);
+    }
+
+    .card h3 {
+      margin: 0 0 16px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 200px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      background: var(--bg-secondary);
+      border: 0;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: #00aacc;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,187,221,0.3);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border: 2px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .btn.ghost:hover {
+      background: var(--card-bg);
+      border-color: var(--bg-secondary);
+    }
+
+    .fab {
+      position: fixed;
+      right: 32px;
+      bottom: 32px;
+      background: linear-gradient(135deg, #FF4C4C 0%, #CC0000 100%);
+      color: #fff;
+      padding: 18px 24px;
+      border-radius: 999px;
+      box-shadow: 0 8px 24px rgba(255,76,76,0.4);
+      border: 0;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 1000;
+    }
+
+    .fab:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 32px rgba(255,76,76,0.5);
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 40px;
+      margin-top: 24px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--border-color);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 24px;
+      padding: 16px;
+      background: var(--card-bg);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -32px;
+      top: 20px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      border: 3px solid var(--bg-primary);
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .timeline-title {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .timeline-date {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .timeline-content {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .notifications-panel {
+      position: fixed;
+      right: 20px;
+      top: 80px;
+      width: 380px;
+      max-height: 500px;
+      background: linear-gradient(180deg, rgba(0,51,97,0.95) 0%, rgba(0,31,61,0.95) 100%);
+      border-radius: var(--radius);
+      border: 2px solid var(--border-color);
+      box-shadow: var(--shadow);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .notifications-panel.open {
+      display: flex;
+    }
+
+    .notifications-header {
+      padding: 20px;
+      border-bottom: 2px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notifications-list {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .notification-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .notification-item:hover {
+      background: var(--card-hover);
+    }
+
+    .notification-item.unread {
+      background: rgba(0,187,221,0.1);
+    }
+
+    .notification-title {
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .notification-text {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .notification-time {
+      color: var(--text-muted-2);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .modal {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal .panel {
+      background: linear-gradient(180deg, rgba(0,51,97,0.95) 0%, rgba(0,31,61,0.95) 100%);
+      padding: 32px;
+      border-radius: var(--radius);
+      max-width: 600px;
+      width: 95%;
+      border: 2px solid var(--border-color);
+      box-shadow: var(--shadow);
+    }
+
+    section {
+      display: none;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    section h3 {
+      font-size: 24px;
+      font-weight: 800;
+      margin: 0 0 12px 0;
+      color: var(--text-primary);
+    }
+
+    .muted {
+      color: var(--text-muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    th, td {
+      padding: 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    tr:hover td {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-secondary);
+    }
+
+    footer {
+      background: rgba(24,24,24,0.8);
+      color: var(--text-secondary);
+      padding: 20px 24px;
+      border-radius: var(--radius-sm);
+      margin-top: 40px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      nav.sidebar {
+        height: auto;
+        border-radius: var(--radius);
+        position: relative;
+        top: 0;
+      }
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--card-bg) 25%, var(--card-hover) 50%, var(--card-bg) 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s ease-in-out infinite;
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Copilot Chat Styles */
+    .copilot-message {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    .copilot-message.bot {
+      flex-direction: row;
+    }
+
+    .copilot-message.user {
+      flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00BBDD 0%, #007760 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .message-content {
+      flex: 1;
+      background: var(--card-bg);
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .message-text {
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .block-item {
+      transition: var(--transition);
+    }
+
+    .block-item:hover {
+      transform: translateX(4px);
+      border-left-width: 6px !important;
+    }
+  </style>
+</head>
+<body>
+  <a href="#maincontent" class="skip-link">Pular para conteúdo</a>
+
+  <div class="app">
+    <div class="container" role="application" aria-label="Portal do Cliente Opus Tech">
+      
+      <nav class="sidebar" aria-label="Menu lateral principal">
+        <div class="brand">
+          <div>
+            <h2 style="margin:0;font-size:20px;color:var(--text-primary)">Opus Tech</h2>
+            <small>Portal do Cliente</small>
+          </div>
+        </div>
+
+        <div class="menu" role="navigation" aria-label="Seções do portal">
+          <button onclick="showSection('dashboard')" aria-controls="dashboard" class="active">📊 Dashboard</button>
+          <button onclick="showSection('copilot')" aria-controls="copilot">🤖 Copilot IA</button>
+          <button onclick="showSection('predicao')" aria-controls="predicao">🔮 Predição Proativa</button>
+          <button onclick="showSection('automacao')" aria-controls="automacao">⚡ Automação</button>
+          <button onclick="showSection('visualizacao3d')" aria-controls="visualizacao3d">🌐 Infraestrutura 3D</button>
+          <button onclick="showSection('servicos')" aria-controls="servicos">💼 Serviços</button>
+          <button onclick="showSection('financeiro')" aria-controls="financeiro">💰 Financeiro</button>
+          <button onclick="showSection('atendimento')" aria-controls="atendimento">🎧 Atendimento</button>
+          <button onclick="showSection('documentos')" aria-controls="documentos">📄 Documentos</button>
+          <button onclick="showSection('analytics')" aria-controls="analytics">📈 Analytics</button>
+          <button onclick="showSection('governanca')" aria-controls="governanca">📋 Governança</button>
+          <button onclick="showSection('blockchain')" aria-controls="blockchain">⛓️ Blockchain</button>
+          <button onclick="showSection('gamificacao')" aria-controls="gamificacao">🎮 Gamificação</button>
+          <button onclick="showSection('marketplace')" aria-controls="marketplace">🛒 Marketplace</button>
+          <button onclick="showSection('iot')" aria-controls="iot">📡 IoT</button>
+          <button onclick="showSection('voz')" aria-controls="voz">🎤 Assistente Voz</button>
+          <button onclick="showSection('colaboracao')" aria-controls="colaboracao">👥 Colaboração</button>
+        </div>
+
+        <div class="sidebar-footer">
+          <div><strong>Contato:</strong><br>gerente.conta@opustech.com.br</div>
+          <div><strong>Telefone:</strong><br>+55 (41) 0000-0000</div>
+          <div style="margin-top:16px">
+            <button class="btn" onclick="showSection('suporte')">🚨 Abrir Chamado</button>
+          </div>
+        </div>
+      </nav>
+
+      <main id="maincontent" tabindex="-1">
+        <header class="top" role="banner">
+          <div class="left">
+            <h2 id="title">Dashboard — Portal do Cliente</h2>
+            <div class="subtitle">Visão consolidada dos serviços, finanças, suporte e conformidade</div>
+          </div>
+
+          <div class="header-right">
+            <div class="search" role="search">
+              <input id="searchInput" aria-label="Pesquisar" placeholder="Pesquisar (Ctrl+K)..." onkeydown="handleSearchKeydown(event)">
+            </div>
+
+            <button class="notifications-btn" onclick="toggleNotifications()" aria-label="Notificações">
+              🔔
+              <span class="notifications-badge" id="notificationBadge">3</span>
+            </button>
+
+            <div class="user" role="group" aria-label="Perfil do usuário">
+              <div class="user-info" style="text-align:right;min-width:120px">
+                <div class="user-name">Cliente Exemplo</div>
+                <div class="user-account">Conta: ACME Corp</div>
+              </div>
+              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect width='100%' height='100%' fill='%2300BBDD'/><text x='50%' y='55%' font-size='32' font-family='Arial' fill='%23FFFFFF' text-anchor='middle' alignment-baseline='middle'>CE</text></svg>" alt="avatar"/>
+            </div>
+          </div>
+        </header>
+
+        <!-- Dashboard -->
+        <section id="dashboard" class="active" aria-labelledby="title">
+          <div class="dashboard">
+            <div class="card" aria-live="polite">
+              <h3>Serviços Ativos</h3>
+              <div class="metric">8</div>
+              <div class="metric-label">SLA médio: 99.92%</div>
+              <div class="chart-container">
+                <canvas id="slaChart"></canvas>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Chamados Abertos</h3>
+              <div class="metric">5</div>
+              <div class="metric-label">Priority: 1 crítico</div>
+              <div style="margin-top:16px">
+                <button class="btn" onclick="showSection('atendimento')">Ver chamados</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Financeiro</h3>
+              <div class="metric">R$ 12.450,00</div>
+              <div class="metric-label">Faturas vencidas: 1</div>
+              <div style="margin-top:16px">
+                <button class="btn ghost" onclick="showSection('financeiro')">Ver faturas</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:32px" class="card" style="background:linear-gradient(135deg, rgba(0,187,221,0.1) 0%, rgba(0,119,96,0.1) 100%);border:2px solid var(--bg-secondary)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3 style="margin:0">Certificações ISO</h3>
+              <div style="display:flex;gap:8px">
+                <span style="background:var(--bg-tertiary);padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700">9001</span>
+                <span style="background:var(--bg-primary);padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700">27001</span>
+                <span style="background:var(--bg-secondary);padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700">27701</span>
+              </div>
+            </div>
+            <p class="muted" style="margin-bottom:16px">Opus Tech possui certificações internacionais que comprovam nosso compromisso com qualidade, segurança e privacidade.</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:16px">
+              <div>
+                <div class="muted" style="font-size:12px">ISO 9001:2015</div>
+                <div style="font-weight:700;color:#00BBDD">Válido até 18/09/2028</div>
+              </div>
+              <div>
+                <div class="muted" style="font-size:12px">ISO/IEC 27001:2022</div>
+                <div style="font-weight:700;color:#00BBDD">Válido até 18/09/2028</div>
+              </div>
+              <div>
+                <div class="muted" style="font-size:12px">ISO 27701:2019</div>
+                <div style="font-weight:700;color:#00BBDD">Válido até 18/09/2028</div>
+              </div>
+            </div>
+            <button class="btn" onclick="showSection('governanca')" style="width:100%">Ver Todos os Certificados</button>
+          </div>
+
+          <div style="margin-top:32px" class="card">
+            <h3>Últimos Chamados</h3>
+            <table aria-describedby="title">
+              <thead>
+                <tr><th>ID</th><th>Assunto</th><th>Prioridade</th><th>Status</th><th>Atualizado</th><th>Ações</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>#2451</td><td>Falha no backup</td><td><span style="color:#FF4C4C">Crítico</span></td><td>Aguardando</td><td>20/11/2025</td><td><button class="btn ghost" style="padding:6px 12px;font-size:12px" onclick="viewTicketTimeline(2451)">Ver Timeline</button></td></tr>
+                <tr><td>#2448</td><td>Renovação de licença</td><td>Média</td><td>Em atendimento</td><td>18/11/2025</td><td><button class="btn ghost" style="padding:6px 12px;font-size:12px" onclick="viewTicketTimeline(2448)">Ver Timeline</button></td></tr>
+                <tr><td>#2437</td><td>Solicitação de acesso</td><td>Baixa</td><td>Concluído</td><td>10/11/2025</td><td><button class="btn ghost" style="padding:6px 12px;font-size:12px" onclick="viewTicketTimeline(2437)">Ver Timeline</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Analytics -->
+        <section id="analytics">
+          <h3>Analytics e Métricas</h3>
+          <p class="muted">Dashboards executivos com métricas de SLA, MTTR, MTBF e satisfação do cliente.</p>
+
+          <div class="dashboard" style="margin-top:24px">
+            <div class="card">
+              <h3>SLA por Serviço</h3>
+              <div class="chart-container" style="height:250px">
+                <canvas id="slaByServiceChart"></canvas>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Volume de Chamados</h3>
+              <div class="chart-container" style="height:250px">
+                <canvas id="ticketsVolumeChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:24px">
+            <h3>Métricas Principais</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:20px;margin-top:16px">
+              <div>
+                <div style="font-size:32px;font-weight:800;color:var(--bg-secondary)">2.3h</div>
+                <div class="muted">MTTR Médio</div>
+              </div>
+              <div>
+                <div style="font-size:32px;font-weight:800;color:var(--bg-secondary)">720h</div>
+                <div class="muted">MTBF Médio</div>
+              </div>
+              <div>
+                <div style="font-size:32px;font-weight:800;color:var(--bg-secondary)">85%</div>
+                <div class="muted">Resolução 1ª Tentativa</div>
+              </div>
+              <div>
+                <div style="font-size:32px;font-weight:800;color:var(--bg-secondary)">52</div>
+                <div class="muted">NPS Score</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Atendimento com Timeline -->
+        <section id="atendimento">
+          <h3>Atendimento e Suporte</h3>
+          <p class="muted">Abertura de chamados, priorização automática, linha do tempo e métricas (SLA / MTTR / MTBF).</p>
+
+          <div class="card" style="margin-top:24px">
+            <h4>Abrir novo chamado</h4>
+            <form onsubmit="event.preventDefault();openTicket()">
+              <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
+                <input required placeholder="Assunto" style="flex:1;min-width:200px;padding:12px;border-radius:8px;border:2px solid var(--border-color);background:var(--card-bg);color:var(--text-primary)">
+                <select required style="padding:12px;border-radius:8px;border:2px solid var(--border-color);background:var(--card-bg);color:var(--text-primary);min-width:150px">
+                  <option value="">Prioridade</option>
+                  <option>Baixa</option>
+                  <option>Média</option>
+                  <option>Alta</option>
+                  <option>Crítico</option>
+                </select>
+              </div>
+              <textarea required placeholder="Descreva o problema" style="width:100%;min-height:120px;margin-top:12px;padding:12px;border-radius:8px;border:2px solid var(--border-color);background:var(--card-bg);color:var(--text-primary);font-family:inherit;resize:vertical"></textarea>
+              <div style="margin-top:16px;display:flex;gap:12px;justify-content:flex-end">
+                <button class="btn ghost" type="button" onclick="attachFile()">Anexar arquivo</button>
+                <button class="btn" type="submit">Enviar chamado</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card" style="margin-top:24px">
+            <h4>Timeline do Chamado #2451</h4>
+            <div class="timeline" id="ticketTimeline">
+              <div class="timeline-item">
+                <div class="timeline-header">
+                  <div class="timeline-title">Chamado criado</div>
+                  <div class="timeline-date">20/11/2025 14:30</div>
+                </div>
+                <div class="timeline-content">Cliente reportou falha no backup automático</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-header">
+                  <div class="timeline-title">Atribuído para equipe NOC</div>
+                  <div class="timeline-date">20/11/2025 14:35</div>
+                </div>
+                <div class="timeline-content">Chamado priorizado como crítico e atribuído</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-header">
+                  <div class="timeline-title">Diagnóstico iniciado</div>
+                  <div class="timeline-date">20/11/2025 15:00</div>
+                </div>
+                <div class="timeline-content">Equipe iniciou análise do problema</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Outras seções simplificadas -->
+        <section id="servicos">
+          <h3>Serviços Contratados</h3>
+          <p class="muted">Lista completa com indicadores, contratos e documentos associados.</p>
+        </section>
+
+        <section id="financeiro">
+          <h3>💰 Painel Financeiro — Análise Preditiva</h3>
+          <p class="muted">Acesso a boletos, notas, análise preditiva de custos com IA e recomendações de otimização.</p>
+          
+          <div class="dashboard" style="margin-top:24px">
+            <div class="card">
+              <h4>Faturamento Mensal</h4>
+              <div class="metric" style="color:#00BBDD">R$ 124.500</div>
+              <div class="metric-label">Novembro 2025</div>
+            </div>
+            <div class="card">
+              <h4>Previsão Próximo Mês</h4>
+              <div class="metric" style="color:#FFA500">R$ 132.800</div>
+              <div class="metric-label">+6.7% (IA Preditiva)</div>
+            </div>
+            <div class="card">
+              <h4>Economia Potencial</h4>
+              <div class="metric" style="color:#00BBDD">R$ 18.700</div>
+              <div class="metric-label">Com otimizações sugeridas</div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Previsão de Custos (IA Preditiva)</h4>
+            <div class="chart-container" style="height:300px">
+              <canvas id="financial-prediction-chart"></canvas>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Recomendações de Otimização</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:16px;margin-top:16px">
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border-left:4px solid #00BBDD">
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                  <strong>Redução de Instâncias Ociosas</strong>
+                  <span style="color:#00BBDD;font-weight:700">-R$ 8.200</span>
+                </div>
+                <div class="muted" style="font-size:13px">
+                  Identificadas 12 instâncias com uso < 10%. Desligamento pode economizar R$ 8.200/mês.
+                </div>
+                <button class="btn ghost" style="width:100%;padding:8px;font-size:12px;margin-top:12px" onclick="applyOptimization('instances')">Aplicar Otimização</button>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border-left:4px solid #007760">
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                  <strong>Otimização de Storage</strong>
+                  <span style="color:#00BBDD;font-weight:700">-R$ 5.400</span>
+                </div>
+                <div class="muted" style="font-size:13px">
+                  Migração de dados frios para tier de storage mais barato pode reduzir custos em 35%.
+                </div>
+                <button class="btn ghost" style="width:100%;padding:8px;font-size:12px;margin-top:12px" onclick="applyOptimization('storage')">Aplicar Otimização</button>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border-left:4px solid #FFA500">
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                  <strong>Commit de Reserva</strong>
+                  <span style="color:#00BBDD;font-weight:700">-R$ 5.100</span>
+                </div>
+                <div class="muted" style="font-size:13px">
+                  Compromisso de uso de 1 ano pode reduzir custos de compute em até 40%.
+                </div>
+                <button class="btn ghost" style="width:100%;padding:8px;font-size:12px;margin-top:12px" onclick="applyOptimization('reserved')">Aplicar Otimização</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Faturas e Boletos</h4>
+            <table aria-describedby="title">
+              <thead>
+                <tr><th>Referência</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Nov/2025</td><td>R$ 124.500,00</td><td>10/12/2025</td><td><span style="color:#00BBDD">Pendente</span></td><td><button class="btn ghost" style="padding:4px 8px;font-size:11px">Download</button></td></tr>
+                <tr><td>Out/2025</td><td>R$ 118.200,00</td><td>10/11/2025</td><td><span style="color:#007760">Pago</span></td><td><button class="btn ghost" style="padding:4px 8px;font-size:11px">Download</button></td></tr>
+                <tr><td>Set/2025</td><td>R$ 115.800,00</td><td>10/10/2025</td><td><span style="color:#007760">Pago</span></td><td><button class="btn ghost" style="padding:4px 8px;font-size:11px">Download</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="documentos">
+          <h3>Central de Documentos</h3>
+          <p class="muted">Controle de versões, download seguro e logs de auditoria.</p>
+        </section>
+
+        <section id="governanca">
+          <h3>Planner — Governança, ISO e Entregáveis</h3>
+          <p class="muted">Plano detalhado por buckets, entregáveis, responsáveis, KPIs e checkpoints de conformidade.</p>
+
+          <div style="margin-top:32px">
+            <h4>Certificações ISO — Comprovação de Conformidade</h4>
+            <p class="muted" style="margin-bottom:24px">A Opus Tech possui certificações internacionais que comprovam nosso compromisso com qualidade, segurança e privacidade.</p>
+
+            <div class="dashboard" style="margin-top:24px">
+              <!-- ISO 9001:2015 -->
+              <div class="card" style="cursor:pointer" onclick="viewCertificate('iso9001')">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                  <div style="width:60px;height:60px;background:linear-gradient(135deg, #007760 0%, #005a47 100%);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:white">9001</div>
+                  <div>
+                    <h3 style="margin:0;font-size:18px;color:var(--text-primary)">ISO 9001:2015</h3>
+                    <div class="muted" style="font-size:13px">Quality Management System</div>
+                  </div>
+                </div>
+                <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-color)">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                    <span class="muted">Certificado:</span>
+                    <strong>2UDAUTCU20250919BRAQM1X4</strong>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                    <span class="muted">Emissão:</span>
+                    <span>19/09/2025</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                    <span class="muted">Validade:</span>
+                    <span style="color:#00BBDD;font-weight:700">18/09/2028</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between">
+                    <span class="muted">Certificadora:</span>
+                    <span>TNV Certification Ltd.</span>
+                  </div>
+                  <div style="margin-top:12px">
+                    <button class="btn ghost" style="width:100%;padding:8px;font-size:12px" onclick="event.stopPropagation();viewCertificate('iso9001')">Ver Certificado</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ISO/IEC 27001:2022 -->
+              <div class="card" style="cursor:pointer" onclick="viewCertificate('iso27001')">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                  <div style="width:60px;height:60px;background:linear-gradient(135deg, #003361 0%, #001f3d 100%);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:white">27001</div>
+                  <div>
+                    <h3 style="margin:0;font-size:18px;color:var(--text-primary)">ISO/IEC 27001:2022</h3>
+                    <div class="muted" style="font-size:13px">Information Security Management</div>
+                  </div>
+                </div>
+                <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-color)">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                    <span class="muted">Certificado:</span>
+                    <strong>2UDAUTCU20250919BRAIS16V</strong>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                    <span class="muted">Emissão:</span>
+                    <span>19/09/2025</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                    <span class="muted">Validade:</span>
+                    <span style="color:#00BBDD;font-weight:700">18/09/2028</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between">
+                    <span class="muted">Certificadora:</span>
+                    <span>TNV Certification Ltd.</span>
+                  </div>
+                  <div style="margin-top:12px">
+                    <button class="btn ghost" style="width:100%;padding:8px;font-size:12px" onclick="event.stopPropagation();viewCertificate('iso27001')">Ver Certificado</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ISO 27701:2019 -->
+              <div class="card" style="cursor:pointer" onclick="viewCertificate('iso27701')">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                  <div style="width:60px;height:60px;background:linear-gradient(135deg, #00BBDD 0%, #0099bb 100%);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:white">27701</div>
+                  <div>
+                    <h3 style="margin:0;font-size:18px;color:var(--text-primary)">ISO 27701:2019</h3>
+                    <div class="muted" style="font-size:13px">Privacy Information Management</div>
+                  </div>
+                </div>
+                <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-color)">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                    <span class="muted">Certificado:</span>
+                    <strong>2UDAUTCU20250919BRAPI1H3</strong>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                    <span class="muted">Emissão:</span>
+                    <span>19/09/2025</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                    <span class="muted">Validade:</span>
+                    <span style="color:#00BBDD;font-weight:700">18/09/2028</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between">
+                    <span class="muted">Certificadora:</span>
+                    <span>TNV Certification Ltd.</span>
+                  </div>
+                  <div style="margin-top:12px">
+                    <button class="btn ghost" style="width:100%;padding:8px;font-size:12px" onclick="event.stopPropagation();viewCertificate('iso27701')">Ver Certificado</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top:24px;background:linear-gradient(135deg, rgba(0,187,221,0.1) 0%, rgba(0,119,96,0.1) 100%);border:2px solid var(--bg-secondary)">
+              <h4 style="margin-bottom:12px">Verificação de Certificados</h4>
+              <p class="muted" style="margin-bottom:16px">Todos os certificados podem ser verificados online através das plataformas oficiais:</p>
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <a href="https://www.tnvworld.com" target="_blank" rel="noopener noreferrer" class="btn" style="text-decoration:none">www.tnvworld.com</a>
+                <a href="https://www.iafcertsearch.org" target="_blank" rel="noopener noreferrer" class="btn ghost" style="text-decoration:none">www.iafcertsearch.org</a>
+              </div>
+              <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-color)">
+                <div class="muted" style="font-size:13px">
+                  <strong>Organização Certificada:</strong> OPS SOLUCOES EM TECNOLOGIA DA INFORMATICA LTDA.<br>
+                  <strong>Endereço:</strong> Av. sete de setembro 4923, Sala 1901, Agua Verde, Curitiba, PR, CEP: 80250-205, Brazil<br>
+                  <strong>Escopo:</strong> Provision of server space rental, including implementation, monitoring, support, and maintenance of servers and related services
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="suporte">
+          <h3>Abrir Chamado (Rápido)</h3>
+          <p class="muted">Utilize este formulário para criar rapidamente um ticket.</p>
+        </section>
+
+        <!-- 🤖 Copilot IA - Assistente Inteligente -->
+        <section id="copilot">
+          <h3>🤖 Copilot IA — Assistente Inteligente</h3>
+          <p class="muted">Assistente com IA generativa para resolução automática de problemas, análise de logs e sugestões inteligentes.</p>
+          
+          <div class="card" style="margin-top:24px">
+            <div style="display:flex;gap:16px;align-items:center;margin-bottom:20px">
+              <div style="width:60px;height:60px;background:linear-gradient(135deg, #00BBDD 0%, #007760 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px">🤖</div>
+              <div>
+                <h4 style="margin:0">Opus Copilot</h4>
+                <div class="muted">Powered by GPT-4 • Análise em tempo real</div>
+              </div>
+            </div>
+            
+            <div id="copilot-chat" style="background:var(--card-bg);border-radius:12px;padding:20px;min-height:400px;max-height:500px;overflow-y:auto;margin-bottom:16px;border:2px solid var(--border-color)">
+              <div class="copilot-message bot">
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                  <div class="message-text">Olá! Sou o Opus Copilot. Como posso ajudar você hoje? Posso analisar logs, resolver problemas, gerar documentação e muito mais!</div>
+                  <div class="message-time">Agora</div>
+                </div>
+              </div>
+            </div>
+            
+            <div style="display:flex;gap:12px">
+              <input id="copilot-input" type="text" placeholder="Digite sua pergunta ou descreva o problema..." style="flex:1;padding:12px;border-radius:8px;border:2px solid var(--border-color);background:var(--card-bg);color:var(--text-primary)" onkeypress="if(event.key==='Enter') sendCopilotMessage()">
+              <button class="btn" onclick="sendCopilotMessage()">Enviar</button>
+              <button class="btn ghost" onclick="clearCopilotChat()">Limpar</button>
+            </div>
+            
+            <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn ghost" style="padding:8px 12px;font-size:12px" onclick="quickCopilotAction('analyze-logs')">📊 Analisar Logs</button>
+              <button class="btn ghost" style="padding:8px 12px;font-size:12px" onclick="quickCopilotAction('troubleshoot')">🔧 Troubleshooting</button>
+              <button class="btn ghost" style="padding:8px 12px;font-size:12px" onclick="quickCopilotAction('generate-doc')">📝 Gerar Documentação</button>
+              <button class="btn ghost" style="padding:8px 12px;font-size:12px" onclick="quickCopilotAction('optimize')">⚡ Otimizar Config</button>
+            </div>
+          </div>
+          
+          <div class="dashboard" style="margin-top:24px">
+            <div class="card">
+              <h4>Resoluções Automáticas</h4>
+              <div class="metric" style="color:#00BBDD">62%</div>
+              <div class="metric-label">Taxa de resolução sem intervenção humana</div>
+            </div>
+            <div class="card">
+              <h4>Tempo Médio de Resposta</h4>
+              <div class="metric" style="color:#00BBDD">1.2s</div>
+              <div class="metric-label">Respostas instantâneas do Copilot</div>
+            </div>
+            <div class="card">
+              <h4>Problemas Resolvidos</h4>
+              <div class="metric" style="color:#00BBDD">1,247</div>
+              <div class="metric-label">Este mês</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 🔮 Predição Proativa -->
+        <section id="predicao">
+          <h3>🔮 Predição Proativa — IA Preditiva</h3>
+          <p class="muted">Alertas antes de problemas ocorrerem. Análise preditiva baseada em ML para prevenir incidentes.</p>
+          
+          <div class="card" style="margin-top:24px;background:linear-gradient(135deg, rgba(255,76,76,0.1) 0%, rgba(255,140,0,0.1) 100%);border:2px solid rgba(255,76,76,0.3)">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+              <div style="font-size:32px">⚠️</div>
+              <div>
+                <h4 style="margin:0;color:#FF4C4C">Alerta Preditivo Ativo</h4>
+                <div class="muted">Probabilidade de falha detectada</div>
+              </div>
+            </div>
+            <div style="background:var(--card-bg);padding:16px;border-radius:8px;margin-top:12px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <strong>Servidor DB-PROD-01</strong>
+                <span style="color:#FF4C4C;font-weight:700">85% probabilidade</span>
+              </div>
+              <div class="muted" style="font-size:13px;margin-bottom:12px">
+                Análise preditiva indica possível falha de disco em 48-72 horas baseado em padrões históricos e tendência de uso.
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn" style="padding:8px 16px;font-size:12px" onclick="resolvePrediction('db-prod-01')">Aplicar Correção Automática</button>
+                <button class="btn ghost" style="padding:8px 16px;font-size:12px" onclick="scheduleMaintenance('db-prod-01')">Agendar Manutenção</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="dashboard" style="margin-top:24px">
+            <div class="card">
+              <h4>Alertas Preditivos</h4>
+              <div id="predictive-alerts-list">
+                <div style="padding:12px;background:var(--card-bg);border-radius:8px;margin-bottom:8px;border-left:4px solid #FFA500">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                    <strong>Backup Storage</strong>
+                    <span style="color:#FFA500;font-size:12px">70% risco</span>
+                  </div>
+                  <div class="muted" style="font-size:12px">Capacidade crítica em 5 dias</div>
+                </div>
+                <div style="padding:12px;background:var(--card-bg);border-radius:8px;margin-bottom:8px;border-left:4px solid #00BBDD">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                    <strong>Rede Principal</strong>
+                    <span style="color:#00BBDD;font-size:12px">45% risco</span>
+                  </div>
+                  <div class="muted" style="font-size:12px">Possível degradação de performance</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card">
+              <h4>Score de Saúde da Infraestrutura</h4>
+              <div style="text-align:center;margin:24px 0">
+                <div style="width:200px;height:200px;margin:0 auto;position:relative">
+                  <canvas id="health-score-chart"></canvas>
+                  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+                    <div style="font-size:48px;font-weight:800;color:#00BBDD">87</div>
+                    <div class="muted">Score</div>
+                  </div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+                <div>
+                  <div style="font-size:24px;font-weight:700;color:#00BBDD">92%</div>
+                  <div class="muted" style="font-size:12px">Servidores</div>
+                </div>
+                <div>
+                  <div style="font-size:24px;font-weight:700;color:#00BBDD">78%</div>
+                  <div class="muted" style="font-size:12px">Rede</div>
+                </div>
+                <div>
+                  <div style="font-size:24px;font-weight:700;color:#00BBDD">95%</div>
+                  <div class="muted" style="font-size:12px">Storage</div>
+                </div>
+                <div>
+                  <div style="font-size:24px;font-weight:700;color:#00BBDD">83%</div>
+                  <div class="muted" style="font-size:12px">Aplicações</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Previsões de Performance</h4>
+            <div class="chart-container" style="height:300px">
+              <canvas id="prediction-chart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- ⚡ Automação Inteligente -->
+        <section id="automacao">
+          <h3>⚡ Automação Inteligente — Self-Service</h3>
+          <p class="muted">Playbooks automatizados, resolução de problemas sem intervenção humana e auto-scaling inteligente.</p>
+          
+          <div class="dashboard" style="margin-top:24px">
+            <div class="card">
+              <h4>Auto-Resolução</h4>
+              <div class="metric" style="color:#00BBDD">58%</div>
+              <div class="metric-label">Chamados resolvidos automaticamente</div>
+              <div style="margin-top:16px">
+                <div style="background:var(--bg-primary);height:8px;border-radius:4px;overflow:hidden">
+                  <div style="background:#00BBDD;height:100%;width:58%"></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card">
+              <h4>Playbooks Ativos</h4>
+              <div class="metric" style="color:#00BBDD">24</div>
+              <div class="metric-label">Automações configuradas</div>
+            </div>
+            
+            <div class="card">
+              <h4>Tempo Médio de Resolução</h4>
+              <div class="metric" style="color:#00BBDD">3.2min</div>
+              <div class="metric-label">Com automação vs 45min manual</div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Playbooks Disponíveis</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:16px;margin-top:16px">
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border:2px solid var(--border-color);cursor:pointer" onclick="runPlaybook('backup-restore')">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                  <div style="font-size:32px">💾</div>
+                  <div>
+                    <strong>Backup & Restore</strong>
+                    <div class="muted" style="font-size:12px">Automático</div>
+                  </div>
+                </div>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Restauração automática de backups em caso de falha
+                </div>
+                <button class="btn ghost" style="width:100%;padding:8px;font-size:12px">Executar</button>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border:2px solid var(--border-color);cursor:pointer" onclick="runPlaybook('scale-up')">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                  <div style="font-size:32px">📈</div>
+                  <div>
+                    <strong>Auto-Scaling</strong>
+                    <div class="muted" style="font-size:12px">Inteligente</div>
+                  </div>
+                </div>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Escalonamento automático baseado em demanda
+                </div>
+                <button class="btn ghost" style="width:100%;padding:8px;font-size:12px">Configurar</button>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border:2px solid var(--border-color);cursor:pointer" onclick="runPlaybook('security-scan')">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                  <div style="font-size:32px">🔒</div>
+                  <div>
+                    <strong>Security Scan</strong>
+                    <div class="muted" style="font-size:12px">Automático</div>
+                  </div>
+                </div>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Varredura automática de vulnerabilidades
+                </div>
+                <button class="btn ghost" style="width:100%;padding:8px;font-size:12px">Executar</button>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border:2px solid var(--border-color);cursor:pointer" onclick="runPlaybook('log-cleanup')">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                  <div style="font-size:32px">🧹</div>
+                  <div>
+                    <strong>Log Cleanup</strong>
+                    <div class="muted" style="font-size:12px">Agendado</div>
+                  </div>
+                </div>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Limpeza automática de logs antigos
+                </div>
+                <button class="btn ghost" style="width:100%;padding:8px;font-size:12px">Configurar</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Histórico de Automações</h4>
+            <table aria-describedby="title">
+              <thead>
+                <tr><th>Data/Hora</th><th>Playbook</th><th>Status</th><th>Tempo</th><th>Ações</th></tr>
+              </thead>
+              <tbody id="automation-history">
+                <tr><td>24/11/2025 14:32</td><td>Backup & Restore</td><td><span style="color:#00BBDD">✓ Sucesso</span></td><td>2.3min</td><td><button class="btn ghost" style="padding:4px 8px;font-size:11px">Ver logs</button></td></tr>
+                <tr><td>24/11/2025 12:15</td><td>Auto-Scaling</td><td><span style="color:#00BBDD">✓ Sucesso</span></td><td>1.8min</td><td><button class="btn ghost" style="padding:4px 8px;font-size:11px">Ver logs</button></td></tr>
+                <tr><td>24/11/2025 10:45</td><td>Security Scan</td><td><span style="color:#FFA500">⚠ Atenção</span></td><td>5.2min</td><td><button class="btn ghost" style="padding:4px 8px;font-size:11px">Ver logs</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 🌐 Visualização 3D -->
+        <section id="visualizacao3d">
+          <h3>🌐 Infraestrutura 3D — Visualização Imersiva</h3>
+          <p class="muted">Explore sua infraestrutura em 3D. Visualização interativa de servidores, datacenters e topologia de rede.</p>
+          
+          <div class="card" style="margin-top:24px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <div>
+                <h4 style="margin:0">Datacenter Principal</h4>
+                <div class="muted">São Paulo - SP</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn ghost" style="padding:8px 12px;font-size:12px" onclick="reset3DView()">🔄 Resetar Vista</button>
+                <button class="btn ghost" style="padding:8px 12px;font-size:12px" onclick="toggle3DLabels()">🏷️ Labels</button>
+              </div>
+            </div>
+            <div id="canvas-3d-container" style="width:100%;height:600px;background:linear-gradient(135deg, #001f3d 0%, #003361 100%);border-radius:12px;position:relative;border:2px solid var(--border-color)">
+              <canvas id="canvas-3d" style="width:100%;height:100%"></canvas>
+              <div style="position:absolute;top:16px;left:16px;background:rgba(0,0,0,0.7);padding:12px;border-radius:8px;color:white;font-size:12px">
+                <div>🖱️ Arraste para rotacionar • 🔍 Scroll para zoom</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="dashboard" style="margin-top:24px">
+            <div class="card">
+              <h4>Servidores Ativos</h4>
+              <div class="metric" style="color:#00BBDD">24</div>
+              <div class="metric-label">No datacenter 3D</div>
+            </div>
+            <div class="card">
+              <h4>Racks</h4>
+              <div class="metric" style="color:#00BBDD">6</div>
+              <div class="metric-label">Racks visualizados</div>
+            </div>
+            <div class="card">
+              <h4>Status Geral</h4>
+              <div style="font-size:32px;color:#00BBDD">✓</div>
+              <div class="metric-label">Todos operacionais</div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Legenda</h4>
+            <div style="display:flex;gap:24px;margin-top:16px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:20px;height:20px;background:#00BBDD;border-radius:4px"></div>
+                <span style="font-size:13px">Servidor Ativo</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:20px;height:20px;background:#FFA500;border-radius:4px"></div>
+                <span style="font-size:13px">Atenção</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:20px;height:20px;background:#FF4C4C;border-radius:4px"></div>
+                <span style="font-size:13px">Crítico</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:20px;height:20px;background:#007760;border-radius:4px"></div>
+                <span style="font-size:13px">Storage</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ⛓️ Blockchain -->
+        <section id="blockchain">
+          <h3>⛓️ Blockchain — Auditoria Imutável</h3>
+          <p class="muted">Logs imutáveis, certificados verificáveis e rastreabilidade completa via blockchain.</p>
+          
+          <div class="card" style="margin-top:24px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <div>
+                <h4 style="margin:0">Cadeia de Blocos</h4>
+                <div class="muted">Última atualização: <span id="blockchain-last-update">Agora</span></div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn ghost" style="padding:8px 12px;font-size:12px" onclick="verifyBlockchain()">✓ Verificar</button>
+                <button class="btn ghost" style="padding:8px 12px;font-size:12px" onclick="exportBlockchain()">📥 Exportar</button>
+              </div>
+            </div>
+            
+            <div id="blockchain-chain" style="max-height:500px;overflow-y:auto">
+              <div class="block-item" style="background:var(--card-bg);padding:16px;border-radius:12px;margin-bottom:12px;border-left:4px solid #00BBDD">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+                  <div>
+                    <strong>Bloco #1247</strong>
+                    <div class="muted" style="font-size:12px;font-family:monospace">0x8a3f2b1c9d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a</div>
+                  </div>
+                  <span style="color:#00BBDD;font-size:12px">✓ Verificado</span>
+                </div>
+                <div style="font-size:13px;margin-bottom:8px">
+                  <strong>Ação:</strong> Alteração de configuração de firewall<br>
+                  <strong>Usuário:</strong> admin@opustech.com.br<br>
+                  <strong>Timestamp:</strong> 24/11/2025 15:32:18 UTC
+                </div>
+                <div style="font-size:11px;font-family:monospace;color:var(--text-muted);word-break:break-all">
+                  Hash anterior: 0x7b2e1a0c8d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b
+                </div>
+              </div>
+              
+              <div class="block-item" style="background:var(--card-bg);padding:16px;border-radius:12px;margin-bottom:12px;border-left:4px solid #00BBDD">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+                  <div>
+                    <strong>Bloco #1246</strong>
+                    <div class="muted" style="font-size:12px;font-family:monospace">0x7b2e1a0c8d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b</div>
+                  </div>
+                  <span style="color:#00BBDD;font-size:12px">✓ Verificado</span>
+                </div>
+                <div style="font-size:13px;margin-bottom:8px">
+                  <strong>Ação:</strong> Certificado ISO 27001 verificado<br>
+                  <strong>Usuário:</strong> Sistema<br>
+                  <strong>Timestamp:</strong> 24/11/2025 15:30:00 UTC
+                </div>
+                <div style="font-size:11px;font-family:monospace;color:var(--text-muted);word-break:break-all">
+                  Hash anterior: 0x6a1d0b9c7e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="dashboard" style="margin-top:24px">
+            <div class="card">
+              <h4>Blocos Totais</h4>
+              <div class="metric" style="color:#00BBDD">1,247</div>
+              <div class="metric-label">Registros imutáveis</div>
+            </div>
+            <div class="card">
+              <h4>Integridade</h4>
+              <div style="font-size:32px;color:#00BBDD">100%</div>
+              <div class="metric-label">Cadeia verificada</div>
+            </div>
+            <div class="card">
+              <h4>Última Verificação</h4>
+              <div style="font-size:24px;color:#00BBDD">✓</div>
+              <div class="metric-label">Há 2 minutos</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 🎮 Gamificação -->
+        <section id="gamificacao">
+          <h3>🎮 Gamificação — Engajamento e Recompensas</h3>
+          <p class="muted">Sistema de pontos, badges, rankings e desafios para otimizar o uso de recursos.</p>
+          
+          <div class="card" style="margin-top:24px;background:linear-gradient(135deg, rgba(0,187,221,0.15) 0%, rgba(0,119,96,0.15) 100%);border:2px solid var(--bg-secondary)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+              <div>
+                <h4 style="margin:0">Seu Perfil</h4>
+                <div class="muted">Nível 7 • Expert</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:32px;font-weight:800;color:#00BBDD">12,450</div>
+                <div class="muted" style="font-size:12px">Pontos Totais</div>
+              </div>
+            </div>
+            
+            <div style="background:var(--card-bg);padding:16px;border-radius:12px;margin-bottom:16px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                <span>Progresso para Nível 8</span>
+                <span style="color:#00BBDD;font-weight:700">78%</span>
+              </div>
+              <div style="background:var(--bg-primary);height:12px;border-radius:6px;overflow:hidden">
+                <div style="background:linear-gradient(90deg, #00BBDD 0%, #007760 100%);height:100%;width:78%"></div>
+              </div>
+            </div>
+            
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <div style="background:var(--card-bg);padding:12px;border-radius:8px;flex:1;min-width:120px;text-align:center">
+                <div style="font-size:24px;font-weight:700;color:#00BBDD">15</div>
+                <div class="muted" style="font-size:11px">Badges</div>
+              </div>
+              <div style="background:var(--card-bg);padding:12px;border-radius:8px;flex:1;min-width:120px;text-align:center">
+                <div style="font-size:24px;font-weight:700;color:#00BBDD">#3</div>
+                <div class="muted" style="font-size:11px">Ranking</div>
+              </div>
+              <div style="background:var(--card-bg);padding:12px;border-radius:8px;flex:1;min-width:120px;text-align:center">
+                <div style="font-size:24px;font-weight:700;color:#00BBDD">42</div>
+                <div class="muted" style="font-size:11px">Conquistas</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Badges Recentes</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:16px;margin-top:16px">
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;text-align:center;border:2px solid #00BBDD">
+                <div style="font-size:48px;margin-bottom:8px">🏆</div>
+                <strong style="font-size:14px">Otimizador Master</strong>
+                <div class="muted" style="font-size:11px;margin-top:4px">Conquistado hoje</div>
+              </div>
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;text-align:center">
+                <div style="font-size:48px;margin-bottom:8px">⚡</div>
+                <strong style="font-size:14px">Auto-Scaler</strong>
+                <div class="muted" style="font-size:11px;margin-top:4px">Há 2 dias</div>
+              </div>
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;text-align:center">
+                <div style="font-size:48px;margin-bottom:8px">🔒</div>
+                <strong style="font-size:14px">Security Expert</strong>
+                <div class="muted" style="font-size:11px;margin-top:4px">Há 5 dias</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Ranking Mensal</h4>
+            <table aria-describedby="title">
+              <thead>
+                <tr><th>Posição</th><th>Usuário</th><th>Pontos</th><th>Nível</th></tr>
+              </thead>
+              <tbody>
+                <tr style="background:rgba(0,187,221,0.1)"><td>🥇 1</td><td>João Silva</td><td>18,450</td><td>Nível 9</td></tr>
+                <tr style="background:rgba(0,187,221,0.05)"><td>🥈 2</td><td>Maria Santos</td><td>15,230</td><td>Nível 8</td></tr>
+                <tr style="background:rgba(0,187,221,0.1)"><td>🥉 3</td><td><strong>Você</strong></td><td><strong>12,450</strong></td><td><strong>Nível 7</strong></td></tr>
+                <tr><td>4</td><td>Pedro Costa</td><td>10,890</td><td>Nível 6</td></tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Desafios do Mês</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));gap:16px;margin-top:16px">
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border:2px solid var(--border-color)">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+                  <strong>Otimização de Custos</strong>
+                  <span style="color:#00BBDD;font-size:12px">+500 pts</span>
+                </div>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Reduza 15% dos custos de infraestrutura este mês
+                </div>
+                <div style="background:var(--bg-primary);height:6px;border-radius:3px;overflow:hidden;margin-bottom:8px">
+                  <div style="background:#00BBDD;height:100%;width:65%"></div>
+                </div>
+                <div class="muted" style="font-size:11px">65% completo</div>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border:2px solid var(--border-color)">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+                  <strong>Zero Downtime</strong>
+                  <span style="color:#00BBDD;font-size:12px">+1000 pts</span>
+                </div>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Mantenha 100% de uptime por 30 dias
+                </div>
+                <div style="background:var(--bg-primary);height:6px;border-radius:3px;overflow:hidden;margin-bottom:8px">
+                  <div style="background:#00BBDD;height:100%;width:80%"></div>
+                </div>
+                <div class="muted" style="font-size:11px">24/30 dias</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 🛒 Marketplace -->
+        <section id="marketplace">
+          <h3>🛒 Marketplace — Soluções e Integrações</h3>
+          <p class="muted">Loja de add-ons, integrações pré-configuradas e templates de infraestrutura como código.</p>
+          
+          <div class="card" style="margin-top:24px">
+            <div style="display:flex;gap:16px;margin-bottom:20px">
+              <input type="text" placeholder="Buscar soluções..." style="flex:1;padding:12px;border-radius:8px;border:2px solid var(--border-color);background:var(--card-bg);color:var(--text-primary)">
+              <select style="padding:12px;border-radius:8px;border:2px solid var(--border-color);background:var(--card-bg);color:var(--text-primary);min-width:150px">
+                <option>Todas as categorias</option>
+                <option>Integrações Cloud</option>
+                <option>Monitoramento</option>
+                <option>Segurança</option>
+                <option>Templates IaC</option>
+              </select>
+            </div>
+            
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:20px">
+              <div style="background:var(--card-bg);padding:20px;border-radius:12px;border:2px solid var(--border-color);cursor:pointer;transition:var(--transition)" onmouseover="this.style.borderColor='#00BBDD';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.transform='translateY(0)'">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+                  <div style="font-size:40px">☁️</div>
+                  <span style="background:#00BBDD;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700">Popular</span>
+                </div>
+                <h4 style="margin:0 0 8px 0">AWS Integration</h4>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Integração completa com AWS: EC2, S3, RDS, Lambda. Gerenciamento unificado.
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                  <div>
+                    <div style="font-size:20px;font-weight:700;color:#00BBDD">Gratuito</div>
+                    <div class="muted" style="font-size:11px">4.8 ⭐ (1.2k avaliações)</div>
+                  </div>
+                </div>
+                <button class="btn" style="width:100%;padding:10px">Instalar</button>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:20px;border-radius:12px;border:2px solid var(--border-color);cursor:pointer;transition:var(--transition)" onmouseover="this.style.borderColor='#00BBDD';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.transform='translateY(0)'">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+                  <div style="font-size:40px">📊</div>
+                  <span style="background:#007760;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700">Novo</span>
+                </div>
+                <h4 style="margin:0 0 8px 0">Grafana Dashboard</h4>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Dashboards pré-configurados para monitoramento avançado de métricas.
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                  <div>
+                    <div style="font-size:20px;font-weight:700;color:#00BBDD">Gratuito</div>
+                    <div class="muted" style="font-size:11px">4.9 ⭐ (856 avaliações)</div>
+                  </div>
+                </div>
+                <button class="btn" style="width:100%;padding:10px">Instalar</button>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:20px;border-radius:12px;border:2px solid var(--border-color);cursor:pointer;transition:var(--transition)" onmouseover="this.style.borderColor='#00BBDD';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.transform='translateY(0)'">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+                  <div style="font-size:40px">🔒</div>
+                  <span style="background:#FFA500;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700">Premium</span>
+                </div>
+                <h4 style="margin:0 0 8px 0">Advanced Security Suite</h4>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Firewall avançado, WAF, DDoS protection e análise de ameaças em tempo real.
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                  <div>
+                    <div style="font-size:20px;font-weight:700;color:#00BBDD">R$ 299/mês</div>
+                    <div class="muted" style="font-size:11px">4.7 ⭐ (342 avaliações)</div>
+                  </div>
+                </div>
+                <button class="btn" style="width:100%;padding:10px">Assinar</button>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:20px;border-radius:12px;border:2px solid var(--border-color);cursor:pointer;transition:var(--transition)" onmouseover="this.style.borderColor='#00BBDD';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.transform='translateY(0)'">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+                  <div style="font-size:40px">🚀</div>
+                </div>
+                <h4 style="margin:0 0 8px 0">Terraform Templates</h4>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Templates IaC prontos para deploy: Kubernetes, Docker, CI/CD pipelines.
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                  <div>
+                    <div style="font-size:20px;font-weight:700;color:#00BBDD">Gratuito</div>
+                    <div class="muted" style="font-size:11px">5.0 ⭐ (2.1k avaliações)</div>
+                  </div>
+                </div>
+                <button class="btn" style="width:100%;padding:10px">Baixar</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Minhas Instalações</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:16px;margin-top:16px">
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border:2px solid #00BBDD">
+                <div style="font-size:32px;margin-bottom:8px">☁️</div>
+                <strong style="font-size:14px">AWS Integration</strong>
+                <div class="muted" style="font-size:11px;margin-top:4px">v2.3.1 • Ativo</div>
+                <button class="btn ghost" style="width:100%;padding:6px;font-size:11px;margin-top:8px">Gerenciar</button>
+              </div>
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border:2px solid var(--border-color)">
+                <div style="font-size:32px;margin-bottom:8px">📊</div>
+                <strong style="font-size:14px">Grafana Dashboard</strong>
+                <div class="muted" style="font-size:11px;margin-top:4px">v1.8.2 • Ativo</div>
+                <button class="btn ghost" style="width:100%;padding:6px;font-size:11px;margin-top:8px">Gerenciar</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 📡 IoT -->
+        <section id="iot">
+          <h3>📡 IoT — Internet das Coisas</h3>
+          <p class="muted">Dashboard unificado para dispositivos IoT, sensores e edge computing.</p>
+          
+          <div class="dashboard" style="margin-top:24px">
+            <div class="card">
+              <h4>Dispositivos Conectados</h4>
+              <div class="metric" style="color:#00BBDD">142</div>
+              <div class="metric-label">Ativos agora</div>
+            </div>
+            <div class="card">
+              <h4>Edge Locations</h4>
+              <div class="metric" style="color:#00BBDD">8</div>
+              <div class="metric-label">Locais monitorados</div>
+            </div>
+            <div class="card">
+              <h4>Dados Coletados</h4>
+              <div class="metric" style="color:#00BBDD">2.4TB</div>
+              <div class="metric-label">Este mês</div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Dispositivos por Categoria</h4>
+            <div class="chart-container" style="height:300px">
+              <canvas id="iot-devices-chart"></canvas>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Dispositivos em Tempo Real</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));gap:16px;margin-top:16px">
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border:2px solid #00BBDD">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                  <div>
+                    <strong>Sensor Temperatura #01</strong>
+                    <div class="muted" style="font-size:11px">São Paulo - DC1</div>
+                  </div>
+                  <div style="width:12px;height:12px;background:#00BBDD;border-radius:50%;animation:pulse 2s infinite"></div>
+                </div>
+                <div style="font-size:32px;font-weight:700;color:#00BBDD">23.5°C</div>
+                <div class="muted" style="font-size:12px;margin-top:4px">Última atualização: há 2s</div>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border:2px solid var(--border-color)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                  <div>
+                    <strong>Sensor Umidade #03</strong>
+                    <div class="muted" style="font-size:11px">Rio de Janeiro - DC2</div>
+                  </div>
+                  <div style="width:12px;height:12px;background:#00BBDD;border-radius:50%"></div>
+                </div>
+                <div style="font-size:32px;font-weight:700;color:#00BBDD">65%</div>
+                <div class="muted" style="font-size:12px;margin-top:4px">Última atualização: há 5s</div>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px;border:2px solid var(--border-color)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                  <div>
+                    <strong>Gateway Edge #02</strong>
+                    <div class="muted" style="font-size:11px">Belo Horizonte</div>
+                  </div>
+                  <div style="width:12px;height:12px;background:#00BBDD;border-radius:50%"></div>
+                </div>
+                <div style="font-size:32px;font-weight:700;color:#00BBDD">Online</div>
+                <div class="muted" style="font-size:12px;margin-top:4px">12 dispositivos conectados</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 🎤 Assistente Voz -->
+        <section id="voz">
+          <h3>🎤 Assistente Virtual com Voz</h3>
+          <p class="muted">Controle o portal por voz. Integração com Web Speech API para comandos e consultas.</p>
+          
+          <div class="card" style="margin-top:24px;text-align:center">
+            <div style="margin:40px 0">
+              <div id="voice-status" style="width:200px;height:200px;margin:0 auto;border-radius:50%;background:var(--card-bg);border:4px solid var(--border-color);display:flex;align-items:center;justify-content:center;font-size:80px;cursor:pointer;transition:var(--transition)" onclick="toggleVoiceAssistant()">
+                🎤
+              </div>
+              <div id="voice-feedback" style="margin-top:24px;font-size:18px;color:var(--text-muted)">Clique para ativar o assistente de voz</div>
+            </div>
+            
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:32px">
+              <button class="btn" onclick="startVoiceCommand()" id="voice-start-btn">🎤 Iniciar Comando</button>
+              <button class="btn ghost" onclick="stopVoiceCommand()" id="voice-stop-btn" style="display:none">⏹️ Parar</button>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Comandos Disponíveis</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));gap:16px;margin-top:16px">
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px">
+                <strong>"Mostrar dashboard"</strong>
+                <div class="muted" style="font-size:12px;margin-top:4px">Abre o dashboard principal</div>
+              </div>
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px">
+                <strong>"Status dos servidores"</strong>
+                <div class="muted" style="font-size:12px;margin-top:4px">Consulta status da infraestrutura</div>
+              </div>
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px">
+                <strong>"Abrir chamado"</strong>
+                <div class="muted" style="font-size:12px;margin-top:4px">Inicia criação de ticket</div>
+              </div>
+              <div style="background:var(--card-bg);padding:16px;border-radius:12px">
+                <strong>"Últimas notificações"</strong>
+                <div class="muted" style="font-size:12px;margin-top:4px">Lista notificações recentes</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Histórico de Comandos</h4>
+            <div id="voice-history" style="max-height:200px;overflow-y:auto">
+              <div style="padding:12px;background:var(--card-bg);border-radius:8px;margin-bottom:8px">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                  <strong>"Mostrar analytics"</strong>
+                  <span class="muted" style="font-size:11px">Há 5 minutos</span>
+                </div>
+                <div class="muted" style="font-size:12px">✓ Comando executado com sucesso</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 👥 Colaboração -->
+        <section id="colaboracao">
+          <h3>👥 Portal Colaborativo — Workspaces</h3>
+          <p class="muted">Workspaces compartilhados, colaboração em tempo real e comunidades de prática.</p>
+          
+          <div class="dashboard" style="margin-top:24px">
+            <div class="card">
+              <h4>Workspaces Ativos</h4>
+              <div class="metric" style="color:#00BBDD">8</div>
+              <div class="metric-label">Equipes colaborando</div>
+            </div>
+            <div class="card">
+              <h4>Membros Online</h4>
+              <div class="metric" style="color:#00BBDD">24</div>
+              <div class="metric-label">Agora</div>
+            </div>
+            <div class="card">
+              <h4>Documentos Compartilhados</h4>
+              <div class="metric" style="color:#00BBDD">156</div>
+              <div class="metric-label">Total</div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Meus Workspaces</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:16px;margin-top:16px">
+              <div style="background:var(--card-bg);padding:20px;border-radius:12px;border:2px solid var(--border-color);cursor:pointer" onclick="openWorkspace('devops')">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+                  <div>
+                    <h4 style="margin:0">DevOps Team</h4>
+                    <div class="muted" style="font-size:12px">12 membros • 8 online</div>
+                  </div>
+                  <div style="width:40px;height:40px;background:#00BBDD;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px">👥</div>
+                </div>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Colaboração em pipelines CI/CD e automação
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <span style="background:var(--bg-secondary);padding:4px 8px;border-radius:4px;font-size:11px">Ativo</span>
+                  <span style="background:var(--card-bg);padding:4px 8px;border-radius:4px;font-size:11px">45 docs</span>
+                </div>
+              </div>
+              
+              <div style="background:var(--card-bg);padding:20px;border-radius:12px;border:2px solid var(--border-color);cursor:pointer" onclick="openWorkspace('security')">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+                  <div>
+                    <h4 style="margin:0">Security Team</h4>
+                    <div class="muted" style="font-size:12px">6 membros • 4 online</div>
+                  </div>
+                  <div style="width:40px;height:40px;background:#007760;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px">🔒</div>
+                </div>
+                <div class="muted" style="font-size:13px;margin-bottom:12px">
+                  Gestão de segurança e compliance
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <span style="background:var(--bg-secondary);padding:4px 8px;border-radius:4px;font-size:11px">Ativo</span>
+                  <span style="background:var(--card-bg);padding:4px 8px;border-radius:4px;font-size:11px">28 docs</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:24px">
+            <h4>Atividade Recente</h4>
+            <div id="collaboration-activity" style="max-height:400px;overflow-y:auto;margin-top:16px">
+              <div style="padding:12px;background:var(--card-bg);border-radius:8px;margin-bottom:8px;border-left:4px solid #00BBDD">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                  <strong>João Silva compartilhou documento</strong>
+                  <span class="muted" style="font-size:11px">Há 5 minutos</span>
+                </div>
+                <div class="muted" style="font-size:12px">"Plano de Disaster Recovery 2025" no workspace DevOps Team</div>
+              </div>
+              <div style="padding:12px;background:var(--card-bg);border-radius:8px;margin-bottom:8px;border-left:4px solid #007760">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                  <strong>Maria Santos comentou</strong>
+                  <span class="muted" style="font-size:11px">Há 12 minutos</span>
+                </div>
+                <div class="muted" style="font-size:12px">No chamado #2451: "Análise concluída, aguardando aprovação"</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer>
+          <div>
+            <strong>Opus Tech</strong> — Plataforma do Cliente • Segurança e Privacidade alinhadas a ISO 9001, 27001 e 27701
+          </div>
+          <div class="muted" style="font-size:13px">Versão: 3.0 Disruptiva • Última atualização: <span id="updated">24/11/2025</span></div>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <!-- Painel de Notificações -->
+  <div class="notifications-panel" id="notificationsPanel">
+    <div class="notifications-header">
+      <h3 style="margin:0;font-size:18px">Notificações</h3>
+      <button class="btn ghost" style="padding:6px 12px;font-size:12px" onclick="toggleNotifications()">Fechar</button>
+    </div>
+    <div class="notifications-list" id="notificationsList">
+      <div class="notification-item unread">
+        <div class="notification-title">Novo chamado #2451</div>
+        <div class="notification-text">Falha no backup reportada</div>
+        <div class="notification-time">Há 2 horas</div>
+      </div>
+      <div class="notification-item unread">
+        <div class="notification-title">SLA em risco</div>
+        <div class="notification-text">Chamado #2448 próximo do prazo</div>
+        <div class="notification-time">Há 5 horas</div>
+      </div>
+      <div class="notification-item">
+        <div class="notification-title">Fatura disponível</div>
+        <div class="notification-text">Fatura #2025-111 disponível para download</div>
+        <div class="notification-time">Ontem</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botão de emergência -->
+  <button class="fab" aria-label="Acionar emergência" onclick="openEmergencyModal()">🚨 EMERGÊNCIA</button>
+
+  <!-- Modal de emergência -->
+  <div id="modal-emergencia" class="modal" role="dialog" aria-modal="true">
+    <div class="panel">
+      <h3>Acionar Solicitação de Emergência</h3>
+      <p class="muted">Confirmar acionamento do plantão e registro automático do incidente com prioridade crítica.</p>
+      <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px">
+        <button class="btn ghost" onclick="closeEmergencyModal()">Cancelar</button>
+        <button class="btn" onclick="triggerEmergency()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Certificado ISO -->
+  <div id="modal-certificado" class="modal" role="dialog" aria-modal="true">
+    <div class="panel" style="max-width:900px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h3 id="cert-title">Certificado ISO</h3>
+        <button class="btn ghost" style="padding:8px 16px" onclick="closeCertificateModal()">✕ Fechar</button>
+      </div>
+      <div id="cert-content" style="max-height:70vh;overflow-y:auto">
+        <!-- Conteúdo será preenchido dinamicamente -->
+      </div>
+      <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:2px solid var(--border-color)">
+        <button class="btn ghost" onclick="closeCertificateModal()">Fechar</button>
+        <button class="btn" onclick="downloadCertificate()">📥 Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Estado global
+    const state = {
+      notifications: [
+        { id: 1, title: 'Novo chamado #2451', text: 'Falha no backup reportada', time: 'Há 2 horas', read: false },
+        { id: 2, title: 'SLA em risco', text: 'Chamado #2448 próximo do prazo', time: 'Há 5 horas', read: false },
+        { id: 3, title: 'Fatura disponível', text: 'Fatura #2025-111 disponível para download', time: 'Ontem', read: true }
+      ],
+      unreadCount: 2
+    };
+
+    // Navegação
+    function showSection(id) {
+      document.querySelectorAll('main section').forEach(s => {
+        s.classList.remove('active');
+        s.style.display = 'none';
+      });
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add('active');
+        el.style.display = 'block';
+        if (id === 'dashboard' || id === 'analytics') {
+          setTimeout(() => initCharts(), 100);
+        }
+      if (id === 'financeiro') {
+          setTimeout(() => initFinancialCharts(), 100);
+        }
+      }
+      const title = el?.querySelector('h3')?.innerText || 'Portal do Cliente';
+      document.getElementById('title').innerText = title + ' — Portal do Cliente';
+      document.querySelectorAll('.menu button').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('aria-controls') === id) {
+          btn.classList.add('active');
+        }
+      });
+      document.getElementById('maincontent').scrollTop = 0;
+    }
+
+    // Gráficos
+    let charts = {};
+    function initCharts() {
+      if (charts.sla) return;
+      
+      // Gráfico SLA
+      const slaCtx = document.getElementById('slaChart');
+      if (slaCtx) {
+        charts.sla = new Chart(slaCtx, {
+          type: 'line',
+          data: {
+            labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+            datasets: [{
+              label: 'SLA %',
+              data: [99.8, 99.9, 99.7, 99.95, 99.9, 99.85, 99.92],
+              borderColor: '#00BBDD',
+              backgroundColor: 'rgba(0,187,221,0.1)',
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: false, min: 99, max: 100, ticks: { color: '#F8F8FF' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+              x: { ticks: { color: '#F8F8FF' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+            }
+          }
+        });
+      }
+
+      // Gráfico SLA por Serviço
+      const slaServiceCtx = document.getElementById('slaByServiceChart');
+      if (slaServiceCtx) {
+        charts.slaService = new Chart(slaServiceCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Backup', 'Cloud', 'Monitoramento', 'Segurança', 'Rede'],
+            datasets: [{
+              label: 'SLA %',
+              data: [99.99, 99.95, 99.92, 99.88, 99.85],
+              backgroundColor: '#00BBDD'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: false, min: 99, max: 100, ticks: { color: '#F8F8FF' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+              x: { ticks: { color: '#F8F8FF' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+            }
+          }
+        });
+      }
+
+      // Gráfico Volume de Chamados
+      const ticketsCtx = document.getElementById('ticketsVolumeChart');
+      if (ticketsCtx) {
+        charts.tickets = new Chart(ticketsCtx, {
+          type: 'line',
+          data: {
+            labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+            datasets: [{
+              label: 'Chamados',
+              data: [12, 19, 15, 22],
+              borderColor: '#007760',
+              backgroundColor: 'rgba(0,119,96,0.1)',
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, ticks: { color: '#F8F8FF' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+              x: { ticks: { color: '#F8F8FF' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+            }
+          }
+        });
+      }
+    }
+
+    // Notificações
+    function toggleNotifications() {
+      const panel = document.getElementById('notificationsPanel');
+      panel.classList.toggle('open');
+    }
+
+    function updateNotificationBadge() {
+      const badge = document.getElementById('notificationBadge');
+      badge.textContent = state.unreadCount;
+      badge.style.display = state.unreadCount > 0 ? 'flex' : 'none';
+    }
+
+    // Busca
+    function handleSearchKeydown(e) {
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('searchInput').focus();
+      } else if (e.key === 'Enter') {
+        quickSearch(e.target.value);
+      }
+    }
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('searchInput').focus();
+      }
+    });
+
+    // Timeline
+    function viewTicketTimeline(id) {
+      showSection('atendimento');
+      setTimeout(() => {
+        document.getElementById('ticketTimeline').scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+
+    // Funções auxiliares
+    function quickSearch(q) {
+      console.log('Pesquisar:', q);
+      // Implementar busca real
+    }
+
+    function openTicket() {
+      addNotification('Chamado criado', 'Seu chamado foi registrado com sucesso', 'Agora');
+      alert('Chamado criado. Integração ITSM necessária para envio real.');
+    }
+
+    function attachFile() {
+      document.getElementById('fileupload')?.click();
+    }
+
+    function addNotification(title, text, time) {
+      state.notifications.unshift({ id: Date.now(), title, text, time, read: false });
+      state.unreadCount++;
+      updateNotificationBadge();
+      renderNotifications();
+    }
+
+    function renderNotifications() {
+      const list = document.getElementById('notificationsList');
+      list.innerHTML = state.notifications.map(n => `
+        <div class="notification-item ${n.read ? '' : 'unread'}" onclick="markAsRead(${n.id})">
+          <div class="notification-title">${n.title}</div>
+          <div class="notification-text">${n.text}</div>
+          <div class="notification-time">${n.time}</div>
+        </div>
+      `).join('');
+    }
+
+    function markAsRead(id) {
+      const notif = state.notifications.find(n => n.id === id);
+      if (notif && !notif.read) {
+        notif.read = true;
+        state.unreadCount--;
+        updateNotificationBadge();
+        renderNotifications();
+      }
+    }
+
+    function openEmergencyModal() {
+      document.getElementById('modal-emergencia').classList.add('open');
+    }
+
+    function closeEmergencyModal() {
+      document.getElementById('modal-emergencia').classList.remove('open');
+    }
+
+    function triggerEmergency() {
+      closeEmergencyModal();
+      addNotification('Emergência acionada', 'Plantão notificado. Aguarde contato.', 'Agora');
+      alert('Incidente crítico registrado. Notificando plantão...');
+    }
+
+    // Certificados ISO
+    const certificados = {
+      iso9001: {
+        title: 'ISO 9001:2015 - Quality Management System',
+        numero: '2UDAUTCU20250919BRAQM1X4',
+        emissao: '19/09/2025',
+        validade: '18/09/2028',
+        certificadora: 'TNV Certification Ltd.',
+        escopo: 'Provision of server space rental, including implementation, monitoring, support, and maintenance of servers and related services',
+        escopoPt: 'Fornecimento de aluguel de espaço de servidor, incluindo implementação, monitoramento, suporte e manutenção de servidores e serviços relacionados',
+        acreditacao: 'United Accreditation Foundation (UAF)',
+        verificacao: ['www.tnvworld.com', 'www.iafcertsearch.org']
+      },
+      iso27001: {
+        title: 'ISO/IEC 27001:2022 - Information Security Management System',
+        numero: '2UDAUTCU20250919BRAIS16V',
+        emissao: '19/09/2025',
+        validade: '18/09/2028',
+        certificadora: 'TNV Certification Ltd.',
+        escopo: 'Provision of server space rental, including implementation, monitoring, support, and maintenance of servers and related services',
+        escopoPt: 'Fornecimento de aluguel de espaço de servidor, incluindo implementação, monitoramento, suporte e manutenção de servidores e serviços relacionados',
+        acreditacao: 'United Accreditation Foundation (UAF)',
+        verificacao: ['www.tnvworld.com', 'www.iafcertsearch.org']
+      },
+      iso27701: {
+        title: 'ISO 27701:2019 - Privacy Information Management System',
+        numero: '2UDAUTCU20250919BRAPI1H3',
+        emissao: '19/09/2025',
+        validade: '18/09/2028',
+        certificadora: 'TNV Certification Ltd.',
+        escopo: 'Provision of server space rental, including implementation, monitoring, support, and maintenance of servers and related services',
+        escopoPt: 'Fornecimento de aluguel de espaço de servidor, incluindo implementação, monitoramento, suporte e manutenção de servidores e serviços relacionados',
+        acreditacao: 'United Accreditation Foundation (UAF)',
+        verificacao: ['www.tnvworld.com', 'www.iafcertsearch.org']
+      }
+    };
+
+    function viewCertificate(tipo) {
+      const cert = certificados[tipo];
+      if (!cert) return;
+
+      const modal = document.getElementById('modal-certificado');
+      const title = document.getElementById('cert-title');
+      const content = document.getElementById('cert-content');
+
+      title.textContent = cert.title;
+      
+      content.innerHTML = `
+        <div style="background:linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);padding:24px;border-radius:12px;border:2px solid var(--border-color);margin-bottom:20px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;margin-bottom:20px">
+            <div>
+              <div class="muted" style="font-size:12px;margin-bottom:4px">Número do Certificado</div>
+              <div style="font-weight:700;font-size:14px;word-break:break-all">${cert.numero}</div>
+            </div>
+            <div>
+              <div class="muted" style="font-size:12px;margin-bottom:4px">Data de Emissão</div>
+              <div style="font-weight:700">${cert.emissao}</div>
+            </div>
+            <div>
+              <div class="muted" style="font-size:12px;margin-bottom:4px">Validade até</div>
+              <div style="font-weight:700;color:#00BBDD">${cert.validade}</div>
+            </div>
+            <div>
+              <div class="muted" style="font-size:12px;margin-bottom:4px">Certificadora</div>
+              <div style="font-weight:700">${cert.certificadora}</div>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border-color)">
+            <div class="muted" style="font-size:12px;margin-bottom:8px">Escopo da Certificação</div>
+            <div style="margin-bottom:12px">
+              <strong>Inglês:</strong><br>
+              <span class="muted">${cert.escopo}</span>
+            </div>
+            <div>
+              <strong>Português:</strong><br>
+              <span class="muted">${cert.escopoPt}</span>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border-color)">
+            <div class="muted" style="font-size:12px;margin-bottom:8px">Acreditação</div>
+            <div style="margin-bottom:12px">
+              <strong>${cert.acreditacao}</strong>
+            </div>
+            <div class="muted" style="font-size:13px;margin-bottom:8px">Verificação online:</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              ${cert.verificacao.map(url => `<a href="https://${url}" target="_blank" rel="noopener noreferrer" class="btn ghost" style="padding:6px 12px;font-size:12px;text-decoration:none">${url}</a>`).join('')}
+            </div>
+          </div>
+
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border-color);background:rgba(0,187,221,0.05);padding:16px;border-radius:8px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <div style="font-size:32px">✅</div>
+              <div>
+                <div style="font-weight:700;margin-bottom:4px">Status: Válido</div>
+                <div class="muted" style="font-size:13px">Certificado ativo e em conformidade</div>
+              </div>
+            </div>
+            <div class="muted" style="font-size:12px;line-height:1.6">
+              <strong>Organização Certificada:</strong> OPS SOLUCOES EM TECNOLOGIA DA INFORMATICA LTDA.<br>
+              <strong>Endereço:</strong> Av. sete de setembro 4923, Sala 1901, Agua Verde, Curitiba, PR, CEP: 80250-205, Brazil
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--card-bg);padding:16px;border-radius:8px;border:1px solid var(--border-color)">
+          <div class="muted" style="font-size:12px;line-height:1.6">
+            <strong>Nota:</strong> A validade deste certificado está sujeita à conformidade contínua do sistema de gestão e à conclusão bem-sucedida das auditorias planejadas pela TNV. Para mais detalhes sobre vigilância, visite www.isoindia.org ou escreva para info@isoindia.org
+          </div>
+        </div>
+      `;
+
+      modal.classList.add('open');
+    }
+
+    function closeCertificateModal() {
+      document.getElementById('modal-certificado').classList.remove('open');
+    }
+
+    function downloadCertificate() {
+      const tipo = document.getElementById('cert-title').textContent.includes('9001') ? 'iso9001' :
+                   document.getElementById('cert-title').textContent.includes('27001') ? 'iso27001' : 'iso27701';
+      alert(`Download do certificado ${tipo.toUpperCase()} será implementado. Em produção, isso baixaria o PDF do certificado.`);
+    }
+
+    // Fechar modal ao clicar fora
+    document.getElementById('modal-emergencia').addEventListener('click', function(e) {
+      if (e.target === this) closeEmergencyModal();
+    });
+
+    document.getElementById('modal-certificado').addEventListener('click', function(e) {
+      if (e.target === this) closeCertificateModal();
+    });
+
+    // Fechar notificações ao clicar fora
+    document.addEventListener('click', (e) => {
+      const panel = document.getElementById('notificationsPanel');
+      if (!panel.contains(e.target) && !e.target.closest('.notifications-btn')) {
+        panel.classList.remove('open');
+      }
+    });
+
+    // Inicialização
+    showSection('dashboard');
+    updateNotificationBadge();
+    renderNotifications();
+    
+    // Registrar Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then((registration) => {
+            console.log('Service Worker registrado:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('Falha ao registrar Service Worker:', error);
+          });
+      });
+    }
+
+    // Solicitar permissão para notificações
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    // Simular atualizações em tempo real
+    setInterval(() => {
+      // Simular novas notificações ocasionalmente
+      if (Math.random() > 0.95) {
+        addNotification('Atualização automática', 'Sistema sincronizado com sucesso', 'Agora');
+        
+        // Notificação do navegador se permitido
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('Portal Opus Tech', {
+            body: 'Sistema sincronizado com sucesso',
+            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%2300BBDD"/><text x="50%" y="60%" font-size="60" font-family="Arial" fill="%23FFFFFF" text-anchor="middle">OT</text></svg>'
+          });
+        }
+      }
+    }, 30000);
+
+    // Lazy loading de imagens
+    if ('IntersectionObserver' in window) {
+      const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            if (img.dataset.src) {
+              img.src = img.dataset.src;
+              img.removeAttribute('data-src');
+              observer.unobserve(img);
+            }
+          }
+        });
+      });
+
+      document.querySelectorAll('img[data-src]').forEach(img => {
+        imageObserver.observe(img);
+      });
+    }
+
+    // Melhorias de acessibilidade - anunciar mudanças
+    const announcer = document.createElement('div');
+    announcer.setAttribute('role', 'status');
+    announcer.setAttribute('aria-live', 'polite');
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.style.width = '1px';
+    announcer.style.height = '1px';
+    announcer.style.overflow = 'hidden';
+    document.body.appendChild(announcer);
+
+    function announce(message) {
+      announcer.textContent = message;
+      setTimeout(() => {
+        announcer.textContent = '';
+      }, 1000);
+    }
+
+    // Anunciar mudanças de seção
+    const originalShowSection = showSection;
+    showSection = function(id) {
+      originalShowSection(id);
+      const sectionName = document.getElementById(id)?.querySelector('h3')?.textContent || 'seção';
+      announce(`Navegando para ${sectionName}`);
+      
+      // Inicializar funcionalidades específicas
+      if (id === 'visualizacao3d') {
+        setTimeout(() => init3DVisualization(), 100);
+      }
+      if (id === 'predicao') {
+        setTimeout(() => initPredictionCharts(), 100);
+      }
+      if (id === 'iot') {
+        setTimeout(() => initIoTCharts(), 100);
+      }
+    };
+
+    // ========== COPILOT IA ==========
+    let copilotMessages = [];
+    
+    function sendCopilotMessage() {
+      const input = document.getElementById('copilot-input');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      addCopilotMessage('user', message);
+      input.value = '';
+      
+      // Simular resposta do IA
+      setTimeout(() => {
+        const responses = [
+          `Analisando sua solicitação: "${message}". Baseado nos logs do sistema, identifiquei que...`,
+          `Entendo sua necessidade. Vou verificar os dados e fornecer uma solução otimizada.`,
+          `Com base no histórico e padrões similares, recomendo as seguintes ações...`,
+          `Analisando os dados em tempo real. Encontrei informações relevantes sobre sua consulta.`
+        ];
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        addCopilotMessage('bot', response);
+      }, 1000);
+    }
+    
+    function addCopilotMessage(type, text) {
+      const chat = document.getElementById('copilot-chat');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `copilot-message ${type}`;
+      const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      
+      messageDiv.innerHTML = `
+        <div class="message-avatar">${type === 'bot' ? '🤖' : '👤'}</div>
+        <div class="message-content">
+          <div class="message-text">${text}</div>
+          <div class="message-time">${now}</div>
+        </div>
+      `;
+      
+      chat.appendChild(messageDiv);
+      chat.scrollTop = chat.scrollHeight;
+      copilotMessages.push({ type, text, time: now });
+    }
+    
+    function clearCopilotChat() {
+      const chat = document.getElementById('copilot-chat');
+      chat.innerHTML = `
+        <div class="copilot-message bot">
+          <div class="message-avatar">🤖</div>
+          <div class="message-content">
+            <div class="message-text">Chat limpo. Como posso ajudar?</div>
+            <div class="message-time">Agora</div>
+          </div>
+        </div>
+      `;
+      copilotMessages = [];
+    }
+    
+    function quickCopilotAction(action) {
+      const actions = {
+        'analyze-logs': 'Analisando logs do sistema... Identifiquei 3 alertas de performance e 1 possível falha de memória.',
+        'troubleshoot': 'Executando diagnóstico automático... Verificando conectividade, recursos e serviços.',
+        'generate-doc': 'Gerando documentação técnica baseada na configuração atual do sistema...',
+        'optimize': 'Analisando configurações... Sugerindo otimizações que podem reduzir custos em 15%.'
+      };
+      
+      addCopilotMessage('user', `Ação: ${action}`);
+      setTimeout(() => {
+        addCopilotMessage('bot', actions[action] || 'Processando sua solicitação...');
+      }, 800);
+    }
+
+    // ========== PREDIÇÃO PROATIVA ==========
+    function initPredictionCharts() {
+      // Health Score Chart
+      const healthCtx = document.getElementById('health-score-chart');
+      if (healthCtx && !healthCtx.chart) {
+        healthCtx.chart = new Chart(healthCtx, {
+          type: 'doughnut',
+          data: {
+            datasets: [{
+              data: [87, 13],
+              backgroundColor: ['#00BBDD', 'rgba(255,255,255,0.1)'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            cutout: '75%',
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+      
+      // Prediction Chart
+      const predCtx = document.getElementById('prediction-chart');
+      if (predCtx && !predCtx.chart) {
+        predCtx.chart = new Chart(predCtx, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov'],
+            datasets: [{
+              label: 'Uso Real',
+              data: [65, 68, 72, 75, 78, 80, 82, 85, 87, 85, 87],
+              borderColor: '#00BBDD',
+              backgroundColor: 'rgba(0,187,221,0.1)',
+              tension: 0.4
+            }, {
+              label: 'Previsão',
+              data: [null, null, null, null, null, null, null, null, null, null, 87, 90, 92],
+              borderColor: '#FFA500',
+              borderDash: [5, 5],
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: true, position: 'top' } },
+            scales: { y: { beginAtZero: true, max: 100 } }
+          }
+        });
+      }
+    }
+    
+    function resolvePrediction(id) {
+      alert(`Aplicando correção automática para ${id}. Em produção, isso executaria scripts de manutenção preventiva.`);
+      addNotification('Correção Aplicada', `Ação preventiva executada para ${id}`, 'Agora');
+    }
+    
+    function scheduleMaintenance(id) {
+      alert(`Agendando manutenção para ${id}. Em produção, isso abriria um calendário de agendamento.`);
+    }
+
+    // ========== AUTOMAÇÃO ==========
+    function runPlaybook(name) {
+      const playbooks = {
+        'backup-restore': 'Executando rotina de backup e verificação de integridade...',
+        'scale-up': 'Configurando auto-scaling baseado em métricas de demanda...',
+        'security-scan': 'Iniciando varredura de vulnerabilidades em toda a infraestrutura...',
+        'log-cleanup': 'Limpando logs antigos conforme política de retenção...'
+      };
+      
+      alert(playbooks[name] || 'Executando playbook...');
+      addNotification('Playbook Executado', `Playbook "${name}" iniciado com sucesso`, 'Agora');
+    }
+
+    // ========== VISUALIZAÇÃO 3D ==========
+    let scene3D, camera3D, renderer3D, controls3D;
+    
+    function init3DVisualization() {
+      const container = document.getElementById('canvas-3d-container');
+      if (!container) return;
+      
+      const canvas = document.getElementById('canvas-3d');
+      if (!canvas) return;
+      
+      // Limpar cena anterior se existir
+      if (renderer3D) {
+        renderer3D.dispose();
+      }
+      
+      // Criar cena
+      scene3D = new THREE.Scene();
+      scene3D.background = new THREE.Color(0x001f3d);
+      
+      // Câmera
+      camera3D = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera3D.position.set(10, 10, 10);
+      
+      // Renderer
+      renderer3D = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+      renderer3D.setSize(container.clientWidth, container.clientHeight);
+      
+      // Controles (simulado - OrbitControls precisa ser carregado)
+      try {
+        if (typeof THREE.OrbitControls !== 'undefined') {
+          controls3D = new THREE.OrbitControls(camera3D, renderer3D.domElement);
+          controls3D.enableDamping = true;
+        }
+      } catch(e) {
+        console.log('OrbitControls não disponível, usando controles básicos');
+      }
+      
+      // Iluminação
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene3D.add(ambientLight);
+      const directionalLight = new THREE.DirectionalLight(0x00BBDD, 0.8);
+      directionalLight.position.set(10, 10, 5);
+      scene3D.add(directionalLight);
+      
+      // Criar servidores 3D (cubos representando racks)
+      const rackCount = 6;
+      for (let i = 0; i < rackCount; i++) {
+        const rack = createRack(i);
+        scene3D.add(rack);
+      }
+      
+      // Animar
+      function animate() {
+        requestAnimationFrame(animate);
+        if (controls3D) controls3D.update();
+        renderer3D.render(scene3D, camera3D);
+      }
+      animate();
+      
+      // Resize handler
+      window.addEventListener('resize', () => {
+        if (container && camera3D && renderer3D) {
+          camera3D.aspect = container.clientWidth / container.clientHeight;
+          camera3D.updateProjectionMatrix();
+          renderer3D.setSize(container.clientWidth, container.clientHeight);
+        }
+      });
+    }
+    
+    function createRack(index) {
+      const group = new THREE.Group();
+      const x = (index % 3) * 5 - 5;
+      const z = Math.floor(index / 3) * 5 - 5;
+      
+      // Base do rack
+      const baseGeometry = new THREE.BoxGeometry(2, 0.2, 1);
+      const baseMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
+      const base = new THREE.Mesh(baseGeometry, baseMaterial);
+      base.position.y = 0.1;
+      group.add(base);
+      
+      // Servidores no rack (4 servidores por rack)
+      const serverColors = [0x00BBDD, 0x00BBDD, 0xFFA500, 0x00BBDD];
+      for (let i = 0; i < 4; i++) {
+        const serverGeometry = new THREE.BoxGeometry(0.4, 0.6, 0.8);
+        const serverMaterial = new THREE.MeshStandardMaterial({ color: serverColors[i] });
+        const server = new THREE.Mesh(serverGeometry, serverMaterial);
+        server.position.set(-0.6 + (i * 0.4), 0.5 + (i * 0.7), 0);
+        group.add(server);
+      }
+      
+      group.position.set(x, 0, z);
+      return group;
+    }
+    
+    function reset3DView() {
+      if (camera3D) {
+        camera3D.position.set(10, 10, 10);
+        camera3D.lookAt(0, 0, 0);
+        if (controls3D) controls3D.update();
+      }
+    }
+    
+    function toggle3DLabels() {
+      alert('Labels 3D: Em produção, isso mostraria/ocultaria labels nos servidores.');
+    }
+
+    // ========== BLOCKCHAIN ==========
+    function verifyBlockchain() {
+      alert('Verificando integridade da cadeia de blocos... ✓ Todos os blocos verificados com sucesso!');
+    }
+    
+    function exportBlockchain() {
+      alert('Exportando cadeia de blocos para arquivo JSON. Em produção, isso baixaria o arquivo.');
+    }
+
+    // ========== IOT ==========
+    function initIoTCharts() {
+      const iotCtx = document.getElementById('iot-devices-chart');
+      if (iotCtx && !iotCtx.chart) {
+        iotCtx.chart = new Chart(iotCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Sensores', 'Gateways', 'Atuadores', 'Câmeras'],
+            datasets: [{
+              data: [85, 12, 30, 15],
+              backgroundColor: ['#00BBDD', '#007760', '#FFA500', '#FF4C4C']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+          }
+        });
+      }
+    }
+
+    // ========== ASSISTENTE VOZ ==========
+    let recognition = null;
+    let isListening = false;
+    
+    function initVoiceAssistant() {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        
+        recognition.onresult = function(event) {
+          const command = event.results[0][0].transcript;
+          handleVoiceCommand(command);
+        };
+        
+        recognition.onerror = function(event) {
+          document.getElementById('voice-feedback').textContent = 'Erro no reconhecimento de voz. Tente novamente.';
+          stopVoiceCommand();
+        };
+        
+        recognition.onend = function() {
+          if (isListening) {
+            recognition.start(); // Continuar escutando
+          } else {
+            document.getElementById('voice-status').style.borderColor = 'var(--border-color)';
+            document.getElementById('voice-feedback').textContent = 'Assistente de voz desativado';
+          }
+        };
+      } else {
+        document.getElementById('voice-feedback').textContent = 'Reconhecimento de voz não suportado neste navegador.';
+      }
+    }
+    
+    function toggleVoiceAssistant() {
+      if (!recognition) {
+        initVoiceAssistant();
+        if (!recognition) return;
+      }
+      
+      if (isListening) {
+        stopVoiceCommand();
+      } else {
+        startVoiceCommand();
+      }
+    }
+    
+    function startVoiceCommand() {
+      if (!recognition) {
+        initVoiceAssistant();
+        if (!recognition) {
+          alert('Reconhecimento de voz não está disponível. Use Chrome ou Edge para esta funcionalidade.');
+          return;
+        }
+      }
+      
+      isListening = true;
+      recognition.start();
+      document.getElementById('voice-status').style.borderColor = '#00BBDD';
+      document.getElementById('voice-status').style.animation = 'pulse 1s infinite';
+      document.getElementById('voice-feedback').textContent = '🎤 Escutando... Fale seu comando';
+      document.getElementById('voice-start-btn').style.display = 'none';
+      document.getElementById('voice-stop-btn').style.display = 'inline-block';
+    }
+    
+    function stopVoiceCommand() {
+      isListening = false;
+      if (recognition) {
+        recognition.stop();
+      }
+      document.getElementById('voice-status').style.borderColor = 'var(--border-color)';
+      document.getElementById('voice-status').style.animation = 'none';
+      document.getElementById('voice-feedback').textContent = 'Assistente de voz pausado';
+      document.getElementById('voice-start-btn').style.display = 'inline-block';
+      document.getElementById('voice-stop-btn').style.display = 'none';
+    }
+    
+    function handleVoiceCommand(command) {
+      const cmd = command.toLowerCase();
+      const history = document.getElementById('voice-history');
+      
+      // Adicionar ao histórico
+      const historyItem = document.createElement('div');
+      historyItem.style.cssText = 'padding:12px;background:var(--card-bg);border-radius:8px;margin-bottom:8px';
+      historyItem.innerHTML = `
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <strong>"${command}"</strong>
+          <span class="muted" style="font-size:11px">Agora</span>
+        </div>
+        <div class="muted" style="font-size:12px">✓ Comando executado</div>
+      `;
+      history.insertBefore(historyItem, history.firstChild);
+      
+      // Processar comando
+      if (cmd.includes('dashboard') || cmd.includes('painel')) {
+        showSection('dashboard');
+        document.getElementById('voice-feedback').textContent = '✓ Abrindo dashboard';
+      } else if (cmd.includes('servidor') || cmd.includes('status')) {
+        showSection('dashboard');
+        document.getElementById('voice-feedback').textContent = '✓ Mostrando status dos servidores';
+      } else if (cmd.includes('chamado') || cmd.includes('ticket')) {
+        showSection('atendimento');
+        document.getElementById('voice-feedback').textContent = '✓ Abrindo criação de chamado';
+      } else if (cmd.includes('notificação')) {
+        toggleNotifications();
+        document.getElementById('voice-feedback').textContent = '✓ Mostrando notificações';
+      } else {
+        document.getElementById('voice-feedback').textContent = `Comando recebido: "${command}". Processando...`;
+      }
+    }
+
+    // ========== COLABORAÇÃO ==========
+    function openWorkspace(name) {
+      alert(`Abrindo workspace "${name}". Em produção, isso abriria um workspace colaborativo completo.`);
+    }
+
+    // ========== ANÁLISE FINANCEIRA PREDITIVA ==========
+    function initFinancialCharts() {
+      const finCtx = document.getElementById('financial-prediction-chart');
+      if (finCtx && !finCtx.chart) {
+        finCtx.chart = new Chart(finCtx, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+            datasets: [{
+              label: 'Custo Real',
+              data: [112000, 115000, 118000, 116000, 119000, 117000, 120000, 118200, 115800, 118200, 124500, null],
+              borderColor: '#00BBDD',
+              backgroundColor: 'rgba(0,187,221,0.1)',
+              tension: 0.4,
+              fill: true
+            }, {
+              label: 'Previsão IA',
+              data: [null, null, null, null, null, null, null, null, null, null, 124500, 132800],
+              borderColor: '#FFA500',
+              borderDash: [5, 5],
+              backgroundColor: 'rgba(255,165,0,0.1)',
+              tension: 0.4,
+              fill: true
+            }, {
+              label: 'Com Otimizações',
+              data: [null, null, null, null, null, null, null, null, null, null, 124500, 114100],
+              borderColor: '#007760',
+              borderDash: [3, 3],
+              backgroundColor: 'rgba(0,119,96,0.1)',
+              tension: 0.4,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: true, position: 'top' },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return context.dataset.label + ': R$ ' + context.parsed.y.toLocaleString('pt-BR');
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: false,
+                ticks: {
+                  callback: function(value) {
+                    return 'R$ ' + (value / 1000).toFixed(0) + 'k';
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+    
+    function applyOptimization(type) {
+      const optimizations = {
+        'instances': 'Desligando instâncias ociosas... Economia estimada: R$ 8.200/mês',
+        'storage': 'Iniciando migração de dados para storage otimizado... Economia estimada: R$ 5.400/mês',
+        'reserved': 'Aplicando commit de reserva... Economia estimada: R$ 5.100/mês'
+      };
+      alert(optimizations[type] || 'Aplicando otimização...');
+      addNotification('Otimização Aplicada', `Otimização "${type}" aplicada com sucesso`, 'Agora');
+    }
+
+    // ========== ANÁLISE DE SENTIMENTO ==========
+    function analyzeSentiment(text) {
+      // Simulação de análise de sentimento
+      const positiveWords = ['ótimo', 'excelente', 'bom', 'satisfeito', 'perfeito', 'rápido', 'eficiente'];
+      const negativeWords = ['ruim', 'lento', 'problema', 'erro', 'falha', 'insatisfeito', 'péssimo'];
+      
+      const lowerText = text.toLowerCase();
+      let score = 0;
+      positiveWords.forEach(word => {
+        if (lowerText.includes(word)) score += 1;
+      });
+      negativeWords.forEach(word => {
+        if (lowerText.includes(word)) score -= 1;
+      });
+      
+      if (score > 0) return { sentiment: 'positive', score: Math.min(score, 5) };
+      if (score < 0) return { sentiment: 'negative', score: Math.max(score, -5) };
+      return { sentiment: 'neutral', score: 0 };
+    }
+
+    // ========== COMPLIANCE AUTOMÁTICO ==========
+    function checkCompliance() {
+      const checks = [
+        { name: 'ISO 9001:2015', status: 'conforme', lastCheck: '24/11/2025' },
+        { name: 'ISO 27001:2022', status: 'conforme', lastCheck: '24/11/2025' },
+        { name: 'ISO 27701:2019', status: 'conforme', lastCheck: '24/11/2025' },
+        { name: 'LGPD', status: 'conforme', lastCheck: '23/11/2025' }
+      ];
+      
+      return checks;
+    }
+
+    // Inicializar assistente de voz ao carregar
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initVoiceAssistant);
+    } else {
+      initVoiceAssistant();
+    }
+  </script>
+</body>
+</html>
+

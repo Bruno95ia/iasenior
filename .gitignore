@@ -1,0 +1,118 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+rtsp_env/
+*.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+mediamtx.log
+
+# Resultados e capturas
+resultados/
+*.jpg
+*.png
+*.mp4
+!docs/imagens/**/*.jpg
+!docs/imagens/**/*.png
+
+# Configurações locais e sensíveis
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.cert
+
+# Banco de dados
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+docker-compose.override.yml
+postgres_data/
+pgadmin_data/
+
+# Diretórios obsoletos
+projeto_ia_rtsp/
+docs_old/
+
+# Modelos grandes (descomente se não quiser commitar modelos)
+# modelos/*.pt
+# modelos/*.onnx
+# modelos/queda_custom/
+# yolov8n.pt
+
+# Datasets grandes (não commitar datasets completos)
+datasets/quedas/dataset_yolo/
+datasets/coletados/
+datasets/anotados/
+datasets/consolidado/
+datasets/treino/
+datasets/validacao/
+datasets/teste/
+datasets/publicos/
+
+# Arquivos temporários
+.pids/
+*.pid
+*.tmp
+*.bak
+
+# Arquivos de sistema
+Thumbs.db
+*.orig
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Arquivos de backup
+*.backup
+*.old
+backup_*.sql
+backup_*.sql.gz
+
+# Arquivos de configuração local
+config.local.py
+settings.local.py
+
+# Arquivos de agentes (dados gerados)
+agents_data/**/*.json
+!agents_data/**/*.md
+
+# Base de conhecimento (duplicatas)
+Base de conhecimento/

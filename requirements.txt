@@ -1,0 +1,47 @@
+# Requirements para o sistema de monitoramento com IA
+
+# Machine Learning
+ultralytics>=8.0.0  # YOLOv8
+torch>=2.0.0  # PyTorch (dependência do Ultralytics)
+torchvision>=0.15.0  # Para processamento de imagens
+
+# Computer Vision
+opencv-python>=4.8.0
+numpy>=1.24.0
+Pillow>=10.0.0
+
+# Captura de tela
+mss>=9.0.0  # Para captura de tela multiplataforma
+
+# Web Server
+Flask>=3.0.0  # Para servidor MJPEG
+flask-cors>=4.0.0  # Para CORS no servidor de autenticação
+
+# Dashboard
+streamlit>=1.28.0
+streamlit-autorefresh>=0.0.6
+pandas>=2.0.0  # Para gráficos e análise de dados
+plotly>=5.17.0  # Para gráficos interativos (timeline de anotação)
+
+# Relatórios
+reportlab>=4.0.0  # Para geração de PDF
+openpyxl>=3.1.0  # Para exportação Excel
+
+# Utilities
+pathlib2>=2.3.7  # Compatibilidade de path (já vem no Python 3.4+)
+python-dotenv>=1.0.0  # Suporte para arquivo .env
+requests>=2.31.0  # Para requisições HTTP (status MJPEG)
+
+# Sistema de Agentes
+psutil>=5.9.0  # Para monitoramento de sistema (Health Agent)
+colorama>=0.4.6  # Para cores no terminal (CLI de debate)
+
+# Banco de Dados
+psycopg2-binary>=2.9.0  # Driver PostgreSQL para Python
+
+# Autenticação
+bcrypt>=4.0.0  # Para hash de senhas
+
+# Datasets e Treinamento
+pyyaml>=6.0  # Para arquivos YAML de configuração de classes
+
