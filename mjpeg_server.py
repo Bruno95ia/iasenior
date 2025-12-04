@@ -210,7 +210,6 @@ if __name__ == "__main__":
         sys.exit(1)
     finally:
         # Limpeza final
-        global cap
         if cap is not None:
             try:
                 cap.release()
