@@ -341,15 +341,13 @@ Todos os logs são salvos no diretório `logs/`:
 
 ## 📄 Licença
 
-[Especifique a licença do seu projeto]
+
 
 ## 👤 Autor
 
-[Seu nome/informações]
+Bruno Nogueira
 
 ## 🙏 Agradecimentos
 
-- Ultralytics pelo YOLOv8
-- MediaMTX pela solução RTSP
-- Streamlit pelo framework de dashboard
+
 
