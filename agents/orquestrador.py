@@ -153,7 +153,7 @@ class OrquestradorAgentes:
                         'resposta': 'Timeout ao processar mensagem',
                         'erro': 'Timeout'
                     }
-        except Exception as e:
+                except Exception as e:
                     respostas[nome] = {
                         'status': 'erro',
                         'resposta': '',
@@ -295,7 +295,7 @@ class OrquestradorAgentes:
         status = {}
         for nome, agente in self.agentes.items():
             try:
-            status[nome] = agente.obter_status()
+                status[nome] = agente.obter_status()
             except Exception as e:
                 status[nome] = {
                     'ativo': False,
