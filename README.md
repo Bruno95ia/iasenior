@@ -96,8 +96,7 @@ A documentação está organizada em `docs/`. Veja o **[Índice Completo](docs/0
 ### 📖 Documentação Rápida
 
 #### Visão Geral
-- **[Funcionalidades](docs/01_visao_geral/FUNCIONALIDADES.md)**: Lista completa de funcionalidades
-- **[Apresentação para Sócio](APRESENTACAO_SOCIO.md)**: Apresentação completa do projeto
+- **[Funcionalidades](docs/01_visao_geral/FUNCIONALIDADES.md)**: Lista completa 
 
 #### Instalação e Configuração
 - **[Setup Docker](docs/02_instalacao_configuracao/SETUP_DOCKER.md)**: Guia completo de setup com Docker
